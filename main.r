@@ -1,21 +1,26 @@
-source('utils.r')
+library('rpart')
 
 path = 'C:/Projects/lista1_multiple_classifier_system'
 setwd(path)
+source('utils.r')
 
 dataset = read.table('data.csv', sep=',')
 numOfFolds = 10
 sizeOfPool = 100
-dataset = splitInFolds(dataset, numOfFolds)
+x = splitInFolds(dataset, numOfFolds)
 
 hitRate = list()
 auc = list()
 gmean = list()
 fmeasure = list()
 
-for(j in 1:sizeOfPool){
-    for(i in 1:numOfFolds){
-        xTrain = dataset[[i]]$train
+decisionTree = function(x){
+    return (rpart(x[, ncol(x)] ~ . -x[, ncol(x)], data = x))
+}
+
+for(i in 1:numOfFolds){
+    for(j in 1:sizeOfPool){
+        xTrain = x[[i]]$train
         xBagging = bagging(xTrain)
         xRandomSubspace = randomSubspace(xTrain, 0.5)
         
@@ -31,6 +36,11 @@ for(j in 1:sizeOfPool){
         xRandomSubspace80 = subset(xRandomSubspace, 0.8)
         xRandomSubspace90 = subset(xRandomSubspace, 0.9)
 
-        #perceptron (dataset)
+        decisionTree(xBagging)
+        # rodar perceptron para cada dataset
+        # rodar a decision tree para cada dataset
     }
+    # combinar os classificadores
+    # calcular as métricas
 }
+
