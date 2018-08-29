@@ -20,13 +20,17 @@ splitInFolds = function(x, numOfFolds){
 }
 
 bagging = function(x){
-    return (sample(x, size=length(x), replace=T))
+    numOfRows = nrow(x)
+    return (x[sample(numOfRows, replace=T), ])
 }
 
 randomSubspace = function(x, percent){
+    V22 = x[,ncol(x)]
+    x = x[, -ncol(x)]
     numOfFeatures = floor(ncol(x) * percent)
     selectedFeatures = sample(numOfFeatures)
-    return (x[, selectedFeatures])
+    x = cbind(x[, selectedFeatures], V22)
+    return (x)
 }
 
 subset = function(x, percent){
