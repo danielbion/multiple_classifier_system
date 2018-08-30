@@ -31,7 +31,7 @@ for(i in 1:numOfFolds){
     }
 
     for(j in 1:sizeOfPool){    
-        cat("", j)        
+        cat("", j)
         dtModels[[j]] = list()
         perceptronModels[[j]] = list()
 
@@ -43,11 +43,17 @@ for(i in 1:numOfFolds){
 
         for(k in 1:length(trainSets2)){
             dtModels[[j]][[k]] = decisionTree(trainSets2[[k]])    
-            # perceptronModels[[j]][[k]] = perceptron(datasets[[k]])
+            perceptronModels[[j]][[k]] = perceptron.train(trainSets2[[k]], 1, 10)
         }
     }
 
-    dtMetrics[[i]] = predictAndGetMetrics(dtModels, x[[i]]$test, sizeOfPool)
-    # perceptronMetrics[[i]] = predictAndGetMetrics(perceptronModels, x[[i]]$test, sizeOfPool)    
+    dtMetrics[[i]] = predictDecisionTree(dtModels, x[[i]]$test, sizeOfPool)
+    perceptronMetrics[[i]] = predictPerceptron(perceptronModels, x[[i]]$test, sizeOfPool)
 }
+
+saveRDS(dtMetrics, "dtMetrics.rds")
+saveRDS(perceptronMetrics, "perceptronMetrics.rds")
+
+#dtMetrics = readRDS("dtMetrics.rds")
+#perceptronMetrics = readRDS("perceptronMetrics.rds")
 
