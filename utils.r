@@ -39,7 +39,7 @@ subset = function(x, percent){
 }
 
 decisionTree = function(x){
-    return (rpart(target ~ ., data = x))
+    return (rpart(target ~ ., data = x, method="class"))
 }
 
 perceptron = function(x){
@@ -49,4 +49,40 @@ perceptron = function(x){
 
 majorityVote = function(predicts){
     return (names(which.max(table(predicts))))
+}
+
+predictAndGetMetrics = function(models, test, sizeOfPool){
+    # Predict on test dataset
+    pred = list()
+    for(i in 1:length(models[[1]])){
+        pred[[i]] = matrix(0, sizeOfPool, nrow(test))
+        for(j in 1:sizeOfPool){            
+            p = predict(models[[j]][[i]], newdata = test)
+            pred[[i]][j, ] = ifelse(p[,2] < 0.50, 'false', 'true')
+        }
+    }
+
+    # Get majority vote
+    predFinal = list()
+    for(i in 1:length(models[[1]])){   
+        predFinal[[i]] = list()
+        for(j in 1:nrow(test)){
+            predFinal[[i]][[j]] = majorityVote(pred[[i]][,j])
+        }
+    }
+
+    # Calculate metrics
+    metrics = list()
+
+    for(i in 1:length(models[[1]])){
+        predF = array(unlist(predFinal[[i]]))
+        predF = factor(predF, levels = c('false','true'))
+
+        metrics$auc = c(metrics$auc, roc.curve(test[,'target'], predF, plotit = F)$auc)
+        metrics$accuracy = c(metrics$accuracy, confusionMatrix(predF, test[,'target'])$overall['Accuracy'])
+        metrics$fmeasure = c(metrics$fmeasure, confusionMatrix(predF, test[,'target'])$byClass['F1'])
+        metrics$gmean = c(metrics$gmean, sqrt(confusionMatrix(predF, test[,'target'])$byClass['Precision'] * confusionMatrix(test[,'target'], predF)$byClass['Recall']))
+    }
+
+    return (metrics)
 }
