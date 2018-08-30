@@ -6,25 +6,32 @@ path = 'C:/Projects/lista1_multiple_classifier_system'
 setwd(path)
 source('utils.r')
 
-dataset = as.matrix(read.table('data.csv', sep=',', header=FALSE))
+# data.csv: http://promise.site.uottawa.ca/SERepository/datasets/jm1.arff
+# data2.csv: http://promise.site.uottawa.ca/SERepository/datasets/kc1.arff
+dataset = read.table('data.csv', sep=',', header=TRUE)
+
 numOfFolds = 10
 sizeOfPool = 100
 x = splitInFolds(dataset, numOfFolds)
+
+# auc = c()
+
+# for (i in 1:numOfFolds){
+#     train = x[[i]]$train
+#     test = x[[i]]$test
+#     fit = decisionTree(train)
+#     pred = predict(fit, newdata = test)[,2]
+#     pred = ifelse(pred < 0.50, 'false', 'true')
+#     pred = as.factor(pred)
+#     auc = c(auc, roc.curve(test[,'target'], pred, plotit = F)$auc)
+# }
+
 
 hitRate = list()
 auc = list()
 gmean = list()
 fmeasure = list()
 
-decisionTree = function(x){
-    x = as.data.frame(x)
-    return (rpart(x[, ncol(x)] ~ . -x[, ncol(x)], data = x, maxdepth = 1))
-}
-
-perceptron = function(x){
-    return(neuralnet(x[,22] ~ x[,1] + x[,2] + x[,3] + x[,4] + x[,5] + x[,6] + x[,7] + x[,8] + x[,9] 
-    + x[,10] + x[,11] + x[,12] + x[,13] + x[,14] + x[,15] + x[,16] + x[,17] + x[,18] + x[,19] + x[,20] + x[,21] , data=x, hidden=0))
-}
 
 for(i in 1:numOfFolds){
     print(i)
@@ -72,8 +79,9 @@ for(i in 1:numOfFolds){
     pred = list()
     for(k in 1:length(dtModels[[j]])){
         pred[[k]] = matrix(0, sizeOfPool, nrow(xTest))
-        for(j in 1:sizeOfPool){
-            pred[[k]][j, ] = predict(dtModels[[j]][[k]], newdata = as.data.frame(xTest))
+        for(j in 1:sizeOfPool){            
+            p = predict(dtModels[[j]][[k]], newdata = xTest)
+            pred[[k]][j, ] = ifelse(p[,2] < 0.50, 'false', 'true')
         }
     }
 
@@ -82,14 +90,14 @@ for(i in 1:numOfFolds){
     for(k in 1:length(dtModels[[j]])){   
         predFinal[[k]] = list()
         for(j in 1:nrow(xTest)){
-            predFinal[[k]][[j]] = as.numeric(names(which.max(table(pred[[k]][,j]))))
+            predFinal[[k]][[j]] = majorityVote(pred[[k]][,j])
         }
     }
 
     # Calculate metrics
     for(k in 1:length(dtModels[[j]])){
-        predF = array(as.numeric(unlist(predFinal[[k]])))
-        auc[[i]][[k]] = roc.curve(xTest[,22], predF, plotit = F)$auc
+        predF = as.factor(array(unlist(predFinal[[k]])))
+        auc[[i]][[k]] = roc.curve(xTest[,'target'], predF, plotit = F)$auc
     }
 }
 
