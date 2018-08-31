@@ -1,6 +1,6 @@
 library('rpart')
-library('neuralnet')
 library('ROSE')
+library('caret')
 
 path = 'C:/Projects/lista1_multiple_classifier_system'
 setwd(path)
@@ -44,6 +44,7 @@ for(i in 1:numOfFolds){
         for(k in 1:length(trainSets2)){
             dtModels[[j]][[k]] = decisionTree(trainSets2[[k]])    
             perceptronModels[[j]][[k]] = perceptron.train(trainSets2[[k]], 1, 10)
+            # perceptronModels[[j]][[k]] = perceptron(trainSets2[[k]])
         }
     }
 
