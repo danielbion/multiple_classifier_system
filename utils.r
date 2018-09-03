@@ -1,9 +1,5 @@
 splitInFolds = function(x, numOfFolds){
-    # Shuffle the dataset instances
-    # x = x[sample(nrow(x)),]
-
     # Cut dataset in folds
-    #folds = cut(seq(1,nrow(x)), breaks=numOfFolds, labels=FALSE)
     folds = createFolds(x[,'target'], list=FALSE)
 
     splited = list()
@@ -42,17 +38,12 @@ subset = function(x, percent){
     return (x)
 }
 
-decisionTree = function(x){
-    dtModel = rpart(target ~ ., data = x, method="class")
-    return (dtModel)
-}
-
-perceptron = function(x){
-    target = decodeClassLabels(x[, 'target'])
-    x = x[, -ncol(x)]
-    model = mlp(x, target, size=0, linOut = TRUE, maxit=50)
-    model$names = names(x)
-    return (model)
+subsetStratified = function(x, percent){
+    idx = which(x[,'target'] == 'true')
+    class1 = x[idx, ]
+    class2 = x[-idx, ]
+    x = rbind(subset(class1, percent), subset(class2, percent))
+    x = x[sample(nrow(x)),]
 }
 
 majorityVote = function(predicts){
@@ -105,8 +96,9 @@ predictPerceptron = function(models, test, sizeOfPool){
     target = test[, 'target']
     test = test[, -ncol(test)]
 
+    numOfModels = length(models[[1]])
     pred = list()
-    for(i in 1:length(models[[1]])){
+    for(i in 1:numOfModels){
         pred[[i]] = matrix(0, sizeOfPool, nrow(test))
         for(j in 1:sizeOfPool){
             t = test[,models[[j]][[i]][[1]]]
@@ -115,6 +107,11 @@ predictPerceptron = function(models, test, sizeOfPool){
     }
     metrics = getMetrics(numOfModels, pred, target)
     return (metrics)
+}
+
+decisionTree = function(x){
+    dtModel = rpart(target ~ ., data = x, method="class")
+    return (dtModel)
 }
 
 perceptron.test = function(x, weights) {
@@ -132,49 +129,43 @@ perceptron.test = function(x, weights) {
 # https://rpubs.com/FaiHas/197581
 perceptron.train = function(x, eta, niter) {
     target = x[,ncol(x)]
-    x = x[, -ncol(x)]
-    
+    x = x[, -ncol(x)]    
 
     y = rep (1, length(target))
-    y[target == "true"] = -1
-    
+    y[target == "true"] = -1    
     
     # initialize weight vector
     weight <- rep(0, dim(x)[2] + 1)
     names = names(x)
-    errors <- rep(0, niter)
-    
+    errors <- rep(0, niter)    
     
     # loop over number of epochs niter
     for (jj in 1:niter) {
             
-            # loop through training data set
-            for (ii in 1:length(y)) {
-                    
-                    # Predict binary label using Heaviside activation 
-                    # function
-                    z <- sum(weight[2:length(weight)] * 
-                                        as.numeric(x[ii, ])) + weight[1]
-                    if(z < 0) {
-                            ypred <- -1
-                    } else {
-                            ypred <- 1
-                    }
-                    
-                    # Change weight - the formula doesn't do anything 
-                    # if the predicted value is correct
-                    weightdiff <- eta * (y[ii] - ypred) * 
-                            c(1, as.numeric(x[ii, ]))
-                    weight <- weight + weightdiff
-                    
-                    # Update error function
-                    if ((y[ii] - ypred) != 0.0) {
-                            errors[jj] <- errors[jj] + 1
-                    }
-                    
+        # loop through training data set
+        for (ii in 1:length(y)) {                
+            # Predict binary label using Heaviside activation 
+            # function
+            z <- sum(weight[2:length(weight)] * 
+                                as.numeric(x[ii, ])) + weight[1]
+            if(z < 0) {
+                    ypred <- -1
+            } else {
+                    ypred <- 1
             }
-    }
-    
+            
+            # Change weight - the formula doesn't do anything 
+            # if the predicted value is correct
+            weightdiff <- eta * (y[ii] - ypred) * 
+                    c(1, as.numeric(x[ii, ]))
+            weight <- weight + weightdiff
+            
+            # Update error function
+            if ((y[ii] - ypred) != 0.0) {
+                    errors[jj] <- errors[jj] + 1
+            }                
+        }
+    }    
     # weight to decide between the two species 
     return( list(names, weight))
 }

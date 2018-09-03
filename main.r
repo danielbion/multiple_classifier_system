@@ -8,7 +8,9 @@ source('utils.r')
 
 experiments = function(dataset, prefix){
     numOfFolds = 10
-    sizeOfPool = 10
+    sizeOfPool = 100
+
+    #Split in folds with train/test
     x = splitInFolds(dataset, numOfFolds)
 
     dtMetrics = list()
@@ -23,8 +25,9 @@ experiments = function(dataset, prefix){
         perceptronModels = list()
         trainSets = list()
 
+        # Subset in percents
         for(j in 1:length(percents)){
-            trainSets[[length(trainSets) + 1]] = subset(x[[i]]$train, percents[j])
+            trainSets[[length(trainSets) + 1]] = subsetStratified(x[[i]]$train, percents[j])
         }
 
         for(j in 1:sizeOfPool){    
@@ -32,22 +35,26 @@ experiments = function(dataset, prefix){
             dtModels[[j]] = list()
             perceptronModels[[j]] = list()
 
+            # Apply bagging and random subspace on the subsets
             trainSets2 = list()
             for(k in 1:length(percents)){
                 trainSets2[[length(trainSets2) + 1]] = bagging(trainSets[[k]])
                 trainSets2[[length(trainSets2) + 1]] = randomSubspace(trainSets[[k]], 0.5)
             }
 
+            # Train the decision tree and perceptron
             for(k in 1:length(trainSets2)){
                 dtModels[[j]][[k]] = decisionTree(trainSets2[[k]])    
                 perceptronModels[[j]][[k]] = perceptron.train(trainSets2[[k]], 1, 10)
-                # perceptronModels[[j]][[k]] = perceptron(trainSets2[[k]])
             }
         }
 
+        # Predict on test data and get the metrics
         dtMetrics[[i]] = predictDecisionTree(dtModels, x[[i]]$test, sizeOfPool)
         perceptronMetrics[[i]] = predictPerceptron(perceptronModels, x[[i]]$test, sizeOfPool)
     }
+
+    # Saving the metrics for analysis
     saveRDS(dtModels, paste(prefix, "_dtModels.rds", sep = ""))
     saveRDS(perceptronModels, paste(prefix, "_perceptronModels.rds", sep = ""))
     saveRDS(dtMetrics, paste(prefix, "_dtMetrics.rds", sep = ""))
@@ -66,5 +73,4 @@ data1_dtMetrics = readRDS("data1_dtMetrics.rds")
 data1_perceptronMetrics = readRDS("data1_perceptronMetrics.rds")
 data2_dtMetrics = readRDS("data2_dtMetrics.rds")
 data2_perceptronMetrics = readRDS("data2_perceptronMetrics.rds")
-
 
