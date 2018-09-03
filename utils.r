@@ -1,9 +1,10 @@
 splitInFolds = function(x, numOfFolds){
     # Shuffle the dataset instances
-    x = x[sample(nrow(x)),]
+    # x = x[sample(nrow(x)),]
 
     # Cut dataset in folds
-    folds = cut(seq(1,nrow(x)), breaks=numOfFolds, labels=FALSE)
+    #folds = cut(seq(1,nrow(x)), breaks=numOfFolds, labels=FALSE)
+    folds = createFolds(x[,'target'], list=FALSE)
 
     splited = list()
 
@@ -21,7 +22,9 @@ splitInFolds = function(x, numOfFolds){
 
 bagging = function(x){
     numOfRows = nrow(x)
-    return (x[sample(numOfRows, replace=T), ])
+    x[sample(numOfRows, replace=T), ]
+    rownames(x) = NULL
+    return (x)
 }
 
 randomSubspace = function(x, percent){
@@ -40,7 +43,8 @@ subset = function(x, percent){
 }
 
 decisionTree = function(x){
-    return (rpart(target ~ ., data = x, method="class"))
+    dtModel = rpart(target ~ ., data = x, method="class")
+    return (dtModel)
 }
 
 perceptron = function(x){
@@ -55,39 +59,44 @@ majorityVote = function(predicts){
     return (names(which.max(table(predicts))))
 }
 
-predictDecisionTree = function(models, test, sizeOfPool){
-    # Predict on test dataset
-    pred = list()
-    for(i in 1:length(models[[1]])){
-        pred[[i]] = matrix(0, sizeOfPool, nrow(test))
-        for(j in 1:sizeOfPool){            
-            p = predict(models[[j]][[i]], newdata = test)
-            pred[[i]][j, ] = ifelse(p[,2] < 0.50, 'false', 'true')
-        }
-    }
-
-    # Get majority vote
+getMetrics = function(numOfModels, predMatrix, target){
+     # Get majority vote
     predFinal = list()
-    for(i in 1:length(models[[1]])){   
+    for(i in 1:numOfModels){   
         predFinal[[i]] = list()
-        for(j in 1:nrow(test)){
-            predFinal[[i]][[j]] = majorityVote(pred[[i]][,j])
+        for(j in 1:length(target)){
+            predFinal[[i]][[j]] = majorityVote(predMatrix[[i]][,j])
         }
     }
 
     # Calculate metrics
     metrics = list()
 
-    for(i in 1:length(models[[1]])){
+    for(i in 1:numOfModels){
         predF = array(unlist(predFinal[[i]]))
         predF = factor(predF, levels = c('false','true'))
 
-        metrics$auc = c(metrics$auc, roc.curve(test[,'target'], predF, plotit = F)$auc)
-        metrics$accuracy = c(metrics$accuracy, confusionMatrix(predF, test[,'target'])$overall['Accuracy'])
-        metrics$fmeasure = c(metrics$fmeasure, confusionMatrix(predF, test[,'target'])$byClass['F1'])
-        metrics$gmean = c(metrics$gmean, sqrt(confusionMatrix(predF, test[,'target'])$byClass['Precision'] * confusionMatrix(test[,'target'], predF)$byClass['Recall']))
+        metrics$auc = c(metrics$auc, roc.curve(target, predF, plotit = F)$auc)
+        metrics$accuracy = c(metrics$accuracy, confusionMatrix(predF, target)$overall['Accuracy'])
+        metrics$fmeasure = c(metrics$fmeasure, confusionMatrix(predF, target)$byClass['F1'])
+        metrics$gmean = c(metrics$gmean, sqrt(confusionMatrix(predF, target)$byClass['Precision'] * confusionMatrix(target, predF)$byClass['Recall']))
     }
 
+    return (metrics)
+}
+
+predictDecisionTree = function(models, test, sizeOfPool){
+    # Predict on test dataset
+    numOfModels = length(models[[1]])
+    pred = list()
+    for(i in 1:numOfModels){
+        pred[[i]] = matrix(0, sizeOfPool, nrow(test))
+        for(j in 1:sizeOfPool){            
+            p = predict(models[[j]][[i]], newdata = test)
+            pred[[i]][j, ] = ifelse(p[,2] < 0.50, 'false', 'true')
+        }
+    }
+    metrics = getMetrics(numOfModels, pred, test[,'target'])
     return (metrics)
 }
 
@@ -104,29 +113,7 @@ predictPerceptron = function(models, test, sizeOfPool){
             pred[[i]][j, ] = perceptron.test(t, models[[j]][[i]][[2]])
         }
     }
-
-    # Get majority vote
-    predFinal = list()
-    for(i in 1:length(models[[1]])){   
-        predFinal[[i]] = list()
-        for(j in 1:nrow(test)){
-            predFinal[[i]][[j]] = majorityVote(pred[[i]][,j])
-        }
-    }
-
-    # Calculate metrics
-    metrics = list()
-
-    for(i in 1:length(models[[1]])){
-        predF = array(unlist(predFinal[[i]]))
-        predF = factor(predF, levels = c('false','true'))
-
-        metrics$auc = c(metrics$auc, roc.curve(target, predF, plotit = F)$auc)
-        metrics$accuracy = c(metrics$accuracy, confusionMatrix(predF, target)$overall['Accuracy'])
-        metrics$fmeasure = c(metrics$fmeasure, confusionMatrix(predF, target)$byClass['F1'])
-        metrics$gmean = c(metrics$gmean, sqrt(confusionMatrix(predF, target)$byClass['Precision'] * confusionMatrix(target, predF)$byClass['Recall']))
-    }
-
+    metrics = getMetrics(numOfModels, pred, target)
     return (metrics)
 }
 
@@ -134,7 +121,7 @@ perceptron.test = function(x, weights) {
     target = c()
     for (i in 1:nrow(x)){
         label = 'true'
-        if (sum(x[i,] * weights[2:length(weights)]) > 0){
+        if (as.numeric(x[i,]) %*% weights[2:length(weights)] > 0){
             label = 'false'
         }
         target = c(target, label)
@@ -142,6 +129,7 @@ perceptron.test = function(x, weights) {
     return (target)
 }
 
+# https://rpubs.com/FaiHas/197581
 perceptron.train = function(x, eta, niter) {
     target = x[,ncol(x)]
     x = x[, -ncol(x)]
