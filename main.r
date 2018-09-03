@@ -69,8 +69,3 @@ data2 = read.table('data2.csv', sep=',', header=TRUE)
 experiments(data1, "data1")
 experiments(data2, "data2")
 
-data1_dtMetrics = readRDS("data1_dtMetrics.rds")
-data1_perceptronMetrics = readRDS("data1_perceptronMetrics.rds")
-data2_dtMetrics = readRDS("data2_dtMetrics.rds")
-data2_perceptronMetrics = readRDS("data2_perceptronMetrics.rds")
-
