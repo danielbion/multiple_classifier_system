@@ -359,7 +359,7 @@ friedman_data1_bagging_perceptron_accuracy = friedman.test(cbind(
     data1_bagging100_perceptron_accuracy
 ))
 
-# p-value = 0.03035 - Rejeita, contém outliers
+# p-value = 0.03035 - Rejeita
 friedman_data1_bagging_perceptron_gmean = friedman.test(cbind(
     data1_bagging50_perceptron_gmean, 
     data1_bagging60_perceptron_gmean, 
@@ -411,7 +411,7 @@ friedman_data1_randomSubspace_perceptron_gmean = friedman.test(cbind(
     data1_randomSubspace100_perceptron_gmean
 ))
 
-# p-value = 0.03024 - Rejeita, contém outliers
+# p-value = 0.03024 - Rejeita
 friedman_data1_randomSubspace_perceptron_auc = friedman.test(cbind(
     data1_randomSubspace50_perceptron_auc, 
     data1_randomSubspace60_perceptron_auc, 
@@ -431,6 +431,172 @@ friedman_data1_randomSubspace_perceptron_fmeasure = friedman.test(cbind(
     data1_randomSubspace100_perceptron_fmeasure
 ))
 
+# Bagging + decision tree
+# p-value = 0.6487 - Não rejeita, não existe diferença
+friedman_data2_bagging_dt_accuracy = friedman.test(cbind(
+    data2_bagging50_dt_accuracy, 
+    data2_bagging60_dt_accuracy, 
+    data2_bagging70_dt_accuracy, 
+    data2_bagging80_dt_accuracy,
+    data2_bagging90_dt_accuracy,
+    data2_bagging100_dt_accuracy
+))
+
+# p-value = 0.8238 - Não rejeita, não existe diferença
+friedman_data2_bagging_dt_gmean = friedman.test(cbind(
+    data2_bagging50_dt_gmean, 
+    data2_bagging60_dt_gmean, 
+    data2_bagging70_dt_gmean, 
+    data2_bagging80_dt_gmean,
+    data2_bagging90_dt_gmean,
+    data2_bagging100_dt_gmean
+))
+
+# p-value = 0.03033 - Rejeita
+friedman_data2_bagging_dt_auc = friedman.test(cbind(
+    data2_bagging50_dt_auc, 
+    data2_bagging60_dt_auc, 
+    data2_bagging70_dt_auc, 
+    data2_bagging80_dt_auc,
+    data2_bagging90_dt_auc,
+    data2_bagging100_dt_auc
+))
+
+# p-value = 0.5822 - Não rejeita, não existe diferença
+friedman_data2_bagging_dt_fmeasure = friedman.test(cbind(
+    data2_bagging50_dt_fmeasure, 
+    data2_bagging60_dt_fmeasure, 
+    data2_bagging70_dt_fmeasure, 
+    data2_bagging80_dt_fmeasure,
+    data2_bagging90_dt_fmeasure,
+    data2_bagging100_dt_fmeasure
+))
+
+
+# Random Subspace + decision tree
+# p-value = 0.1606 - Não rejeita, não existe diferença
+friedman_data2_randomSubspace_dt_accuracy = friedman.test(cbind(
+    data2_randomSubspace50_dt_accuracy, 
+    data2_randomSubspace60_dt_accuracy, 
+    data2_randomSubspace70_dt_accuracy, 
+    data2_randomSubspace80_dt_accuracy,
+    data2_randomSubspace90_dt_accuracy,
+    data2_randomSubspace100_dt_accuracy
+))
+
+# p-value = 0.008043 - Rejeita
+friedman_data2_randomSubspace_dt_gmean = friedman.test(cbind(
+    data2_randomSubspace50_dt_gmean, 
+    data2_randomSubspace60_dt_gmean, 
+    data2_randomSubspace70_dt_gmean, 
+    data2_randomSubspace80_dt_gmean,
+    data2_randomSubspace90_dt_gmean,
+    data2_randomSubspace100_dt_gmean
+))
+
+# p-value = 0.9515 - Não rejeita, não existe diferença
+friedman_data2_randomSubspace_dt_auc = friedman.test(cbind(
+    data2_randomSubspace50_dt_auc, 
+    data2_randomSubspace60_dt_auc, 
+    data2_randomSubspace70_dt_auc, 
+    data2_randomSubspace80_dt_auc,
+    data2_randomSubspace90_dt_auc,
+    data2_randomSubspace100_dt_auc
+))
+
+# p-value = 0.299 - Não rejeita, não existe diferença
+friedman_data2_randomSubspace_dt_fmeasure = friedman.test(cbind(
+    data2_randomSubspace50_dt_fmeasure, 
+    data2_randomSubspace60_dt_fmeasure, 
+    data2_randomSubspace70_dt_fmeasure, 
+    data2_randomSubspace80_dt_fmeasure,
+    data2_randomSubspace90_dt_fmeasure,
+    data2_randomSubspace100_dt_fmeasure
+))
+
+
+# Bagging + Perceptron
+# p-value = 0.3495 - Não rejeita, não existe diferença
+friedman_data2_bagging_perceptron_accuracy = friedman.test(cbind(
+    data2_bagging50_perceptron_accuracy, 
+    data2_bagging60_perceptron_accuracy, 
+    data2_bagging70_perceptron_accuracy, 
+    data2_bagging80_perceptron_accuracy,
+    data2_bagging90_perceptron_accuracy,
+    data2_bagging100_perceptron_accuracy
+))
+
+# p-value = 0.6584 - Não rejeita, não existe diferença
+friedman_data2_bagging_perceptron_gmean = friedman.test(cbind(
+    data2_bagging50_perceptron_gmean, 
+    data2_bagging60_perceptron_gmean, 
+    data2_bagging70_perceptron_gmean, 
+    data2_bagging80_perceptron_gmean,
+    data2_bagging90_perceptron_gmean,
+    data2_bagging100_perceptron_gmean
+))
+
+# p-value = 0.176 - Não rejeita, não existe diferença
+friedman_data2_bagging_perceptron_auc = friedman.test(cbind(
+    data2_bagging50_perceptron_auc, 
+    data2_bagging60_perceptron_auc, 
+    data2_bagging70_perceptron_auc, 
+    data2_bagging80_perceptron_auc,
+    data2_bagging90_perceptron_auc,
+    data2_bagging100_perceptron_auc
+))
+
+# p-value = 0.1978 - Não rejeita, não existe diferença
+friedman_data2_bagging_perceptron_fmeasure = friedman.test(cbind(
+    data2_bagging50_perceptron_fmeasure, 
+    data2_bagging60_perceptron_fmeasure, 
+    data2_bagging70_perceptron_fmeasure, 
+    data2_bagging80_perceptron_fmeasure,
+    data2_bagging90_perceptron_fmeasure,
+    data2_bagging100_perceptron_fmeasure
+))
+
+
+# Random Subspace + Perceptron
+# p-value = 0.5205 - Não rejeita, não existe diferença
+friedman_data2_randomSubspace_perceptron_accuracy = friedman.test(cbind(
+    data2_randomSubspace50_perceptron_accuracy, 
+    data2_randomSubspace60_perceptron_accuracy, 
+    data2_randomSubspace70_perceptron_accuracy, 
+    data2_randomSubspace80_perceptron_accuracy,
+    data2_randomSubspace90_perceptron_accuracy,
+    data2_randomSubspace100_perceptron_accuracy
+))
+
+# p-value = 0.7971 - Não rejeita, não existe diferença
+friedman_data2_randomSubspace_perceptron_gmean = friedman.test(cbind(
+    data2_randomSubspace50_perceptron_gmean, 
+    data2_randomSubspace60_perceptron_gmean, 
+    data2_randomSubspace70_perceptron_gmean, 
+    data2_randomSubspace80_perceptron_gmean,
+    data2_randomSubspace90_perceptron_gmean,
+    data2_randomSubspace100_perceptron_gmean
+))
+
+# p-value = 0.6147 - Não rejeita, não existe diferença
+friedman_data2_randomSubspace_perceptron_auc = friedman.test(cbind(
+    data2_randomSubspace50_perceptron_auc, 
+    data2_randomSubspace60_perceptron_auc, 
+    data2_randomSubspace70_perceptron_auc, 
+    data2_randomSubspace80_perceptron_auc,
+    data2_randomSubspace90_perceptron_auc,
+    data2_randomSubspace100_perceptron_auc
+))
+
+# p-value = 0.6651 - Não rejeita, não existe diferença
+friedman_data2_randomSubspace_perceptron_fmeasure = friedman.test(cbind(
+    data2_randomSubspace50_perceptron_fmeasure, 
+    data2_randomSubspace60_perceptron_fmeasure, 
+    data2_randomSubspace70_perceptron_fmeasure, 
+    data2_randomSubspace80_perceptron_fmeasure,
+    data2_randomSubspace90_perceptron_fmeasure,
+    data2_randomSubspace100_perceptron_fmeasure
+))
 # Resultado: Não existiu diferença significativa em nenhuma métrica do perceptron ou arvore de decisão, dado o corte no conjunto de treinamento da base 1
 
 
@@ -626,7 +792,7 @@ wilcox_data1_randomSubspace_perceptron_vs_dt_auc = wilcox.test(paired = TRUE, al
     y = data1_randomSubspace50_perceptron_auc
 )
 
-# p-value = 0.06811 - Iguais
+# p-value = 0.06811 - Random Subspace and Bagging Equals
 wilcox_data1_randomSubspace_vs_bagging_dt_auc = wilcox.test(paired = TRUE, alternative = "greater", conf.level = 0.95,
     x = data1_randomSubspace50_dt_auc,
     y = data1_bagging50_dt_auc
