@@ -61,8 +61,8 @@ experiments = function(dataset, prefix){
     saveRDS(perceptronMetrics, paste(prefix, "_perceptronMetrics.rds", sep = ""))
 }
 
-# data.csv: http://promise.site.uottawa.ca/SERepository/datasets/jm1.arff
-# data2.csv: http://promise.site.uottawa.ca/SERepository/datasets/kc1-class-level-top5percentDF.arff
+# data.csv: http://promise.site.uottawa.ca/SERepository/datasets/cm1.arff
+# data2.csv: http://promise.site.uottawa.ca/SERepository/datasets/kc1-class-level-defectiveornot.arff
 data1 = read.table('data.csv', sep=',', header=TRUE)
 data2 = read.table('data2.csv', sep=',', header=TRUE)
 
