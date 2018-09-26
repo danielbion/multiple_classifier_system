@@ -2,7 +2,7 @@ library('rpart')
 library('ROSE')
 library('caret')
 
-path = 'C:/Projects/lista1_multiple_classifier_system'
+path = 'C:/Projects/lista1_multiple_classifier_system/lista1'
 setwd(path)
 source('utils.r')
 
