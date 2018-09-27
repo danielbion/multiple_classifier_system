@@ -16,19 +16,52 @@ splitInFolds = function(x, numOfFolds){
     return (splited)
 }
 
-bagging = function(x){
-    numOfRows = nrow(x)
-    x[sample(numOfRows, replace=T), ]
-    rownames(x) = NULL
-    return (x)
+bestFirstPruning = function(pool, validationSet){
+    accuracy = c()
+    for(i in 1:length(pool)){
+        accuracy = c(accuracy, getEnsembleAccuracy(list(pool[[i]]), validationSet))
+    }
+    
+    # Insert best classifier first
+    accuracyIdx = sort(accuracy, decreasing = TRUE,index.return=TRUE)$ix
+    ensemble = list()
+    ensemble[[length(ensemble) + 1]] = pool[[accuracyIdx[1]]]
+    accuracyIdx = accuracyIdx[-1]
+
+    while(length(accuracyIdx) > 0){
+        testEnsemble = ensemble
+        testEnsemble[[length(testEnsemble) + 1]] = pool[[accuracyIdx[1]]]
+        currentAccuracy = getEnsembleAccuracy(ensemble, validationSet)
+        newAccuracy = getEnsembleAccuracy(testEnsemble, validationSet)
+        if(newAccuracy >= currentAccuracy){
+            ensemble = testEnsemble
+            accuracyIdx = accuracyIdx[-1]
+        }else{
+            break
+        }    
+    }
+    return (ensemble)
 }
 
-randomSubspace = function(x, percent){
+# http://www.cin.ufpe.br/~tg/2017-1/fnw_tg.pdf
+kdn = function(x, k){
     target = x[,ncol(x)]
     x = x[, -ncol(x)]
-    numOfFeatures = floor(ncol(x) * percent)
-    selectedFeatures = sample(numOfFeatures)
-    x = cbind(x[, selectedFeatures], target)
+
+    neighboorsIdx = kNN(x, k)$id
+    kdnValues = c()
+    for (i in 1:nrow(x)){
+        ## Calculate KDN 
+        disagreeingNeighboors = length(which(target[neighboorsIdx[i,]] != target[i]))
+        kdnValues = c(kdnValues, disagreeingNeighboors/k)
+    }
+    return (kdnValues)
+}
+
+bagging = function(x){
+    numOfRows = nrow(x)
+    x = x[sample(numOfRows, replace=T), ]
+    rownames(x) = NULL
     return (x)
 }
 
@@ -63,48 +96,49 @@ getMetrics = function(predMatrix, target){
     predF = array(unlist(predFinal))
     predF = factor(predF, levels = c('false','true'))
 
-    metrics$auc = c(metrics$auc, roc.curve(target, predF, plotit = F)$auc)
-    metrics$accuracy = c(metrics$accuracy, confusionMatrix(predF, target)$overall['Accuracy'])
-    metrics$fmeasure = c(metrics$fmeasure, confusionMatrix(predF, target)$byClass['F1'])
-    metrics$gmean = c(metrics$gmean, sqrt(confusionMatrix(predF, target)$byClass['Precision'] * confusionMatrix(target, predF)$byClass['Recall']))
+    metrics$auc = roc.curve(target, predF, plotit = F)$auc
+    metrics$accuracy = confusionMatrix(predF, target)$overall['Accuracy']
+    metrics$fmeasure = confusionMatrix(predF, target)$byClass['F1']
+    metrics$gmean = sqrt(confusionMatrix(predF, target)$byClass['Precision'] * confusionMatrix(target, predF)$byClass['Recall'])
 
     return (metrics)
 }
 
-predictDecisionTree = function(models, test, sizeOfPool){
-    # Predict on test dataset
-    numOfModels = length(models[[1]])
-    pred = list()
-    for(i in 1:numOfModels){
-        pred[[i]] = matrix(0, sizeOfPool, nrow(test))
-        for(j in 1:sizeOfPool){            
-            p = predict(models[[j]][[i]], newdata = test)
-            pred[[i]][j, ] = ifelse(p[,2] < 0.50, 'false', 'true')
-        }
+getEnsembleAccuracy = function(ensemble, data){
+    # Predict on data dataset
+    target = data[, 'target']
+    data = data[, -ncol(data)]
+
+    pred = matrix(0, length(ensemble), nrow(data))
+    for(j in 1:length(ensemble)){
+        t = data[,ensemble[[j]][[1]]]
+        pred[j, ] = perceptron.test(t, ensemble[[j]][[2]])
     }
-    metrics = getMetrics(numOfModels, pred, test[,'target'])
-    return (metrics)
+    
+    predFinal = list()
+    for(j in 1:length(target)){
+        predFinal[[j]] = majorityVote(pred[,j])
+    }
+
+    predF = array(unlist(predFinal))
+    predF = factor(predF, levels = c('false','true'))
+
+    accuracy = confusionMatrix(predF, target)$overall['Accuracy']
+    return (accuracy)
 }
 
-predictPerceptron = function(models, test, sizeOfPool){
+predictPerceptron = function(models, test){
     # Predict on test dataset
     target = test[, 'target']
     test = test[, -ncol(test)]
 
-    pred = list()
-    
-    pred = matrix(0, sizeOfPool, nrow(test))
-    for(j in 1:sizeOfPool){
+    pred = matrix(0, length(models), nrow(test))
+    for(j in 1:length(models)){
         t = test[,models[[j]][[1]]]
         pred[j, ] = perceptron.test(t, models[[j]][[2]])        
     }
     metrics = getMetrics(pred, target)
     return (metrics)
-}
-
-decisionTree = function(x){
-    dtModel = rpart(target ~ ., data = x, method="class")
-    return (dtModel)
 }
 
 perceptron.test = function(x, weights) {

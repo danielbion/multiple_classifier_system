@@ -1,6 +1,7 @@
 library('rpart')
 library('ROSE')
 library('caret')
+library('dbscan')
 
 path = 'C:/Projects/lista1_multiple_classifier_system/lista2'
 setwd(path)
@@ -18,34 +19,55 @@ experiments = function(dataset, prefix, skipTraining) {
         x = splitInFolds(dataset, numOfFolds)
         saveRDS(x, paste(prefix, "_x.rds", sep = ""))
 
+        perceptronModels = list()
+
         for (i in 1:numOfFolds) {
             print(i)
-            
-            perceptronModels = list()
             trainSet = x[[i]]$train
+            perceptronModels[[i]] = list()
 
-            for (j in 1:sizeOfPool) {    
+            for (j in 1:sizeOfPool) {
                 cat("", j)
-                perceptronModels[[j]] = list()
 
                 # Apply bagging
                 trainSet = bagging(trainSet)
                 
                 # Train the perceptron
-                perceptronModels[[j]] = perceptron.train(trainSet, 1, 10)
+                perceptronModels[[i]][[j]] = perceptron.train(trainSet, 1, 5)
             }
         }        
         # Saving the models
         saveRDS(perceptronModels, paste(prefix, "_perceptronModels.rds", sep = ""))
     }
 
-    perceptronMetrics = list()
-    
-    # Prunning
-    for(i in 1:numOfFolds){
-        print(i)
-        # Predict on test data and get the metrics
-        perceptronMetrics[[i]] = predictPerceptron(perceptronModels, x[[i]]$test, sizeOfPool)
+    if(skipTraining){
+        # Pruning
+        perceptronModelsPrunning = list()
+        perceptronMetrics = list()
+
+        for(i in 1:numOfFolds){            
+            print(i)
+            kdnValues = kdn(x[[i]]$train, 5)
+            perceptronModelsPrunning[[i]] = list()
+            perceptronMetrics[[i]] = list()
+
+            validationSets = list()
+            validationSets[[length(validationSets) + 1]] = x[[i]]$train
+            validationSets[[length(validationSets) + 1]] = x[[i]]$train[which(kdnValues > 0.5), ]
+            validationSets[[length(validationSets) + 1]] = x[[i]]$train[which(kdnValues <= 0.5), ]
+
+            for(j in 1:length(validationSets)){
+                if(nrow(validationSets[[j]]) < 1){
+                    print("Empty Validation Set")
+                }
+                perceptronModelsPrunning[[i]]$bestFirst = bestFirstPruning(perceptronModels[[i]], validationSets[[j]])
+                # perceptronModelsPrunning[[i]]$reduceError = reduceErrorPruning(perceptronModels[[i]], validationSets[[j]])
+            }
+            
+            perceptronMetrics[[i]][[1]] = predictPerceptron(perceptronModels[[i]], x[[i]]$test)
+            perceptronMetrics[[i]][[2]] = predictPerceptron(perceptronModelsPrunning[[i]]$bestFirst, x[[i]]$test)
+            # perceptronMetrics[[i]][[3]] = predictPerceptron(perceptronModelsPrunning[[i]]$reduceError, x[[i]]$test)            
+        }
         saveRDS(perceptronMetrics, paste(prefix, "_perceptronMetrics.rds", sep = ""))
     }
 }
@@ -56,5 +78,5 @@ data1 = read.table('data.csv', sep=',', header=TRUE)
 data2 = read.table('data2.csv', sep=',', header=TRUE)
 
 ## Generate the pool
-experiments(data1, "data1", TRUE)
-experiments(data2, "data2", TRUE)
+experiments(data1, "data1", FALSE)
+experiments(data2, "data2", FALSE)
