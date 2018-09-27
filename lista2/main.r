@@ -9,7 +9,7 @@ source('utils.r')
 
 experiments = function(dataset, prefix, skipTraining) {
     numOfFolds = 10
-    sizeOfPool = 10    
+    sizeOfPool = 100
 
     if (skipTraining) {
         x = readRDS(paste(prefix, "_x.rds", sep = ""))
@@ -33,7 +33,7 @@ experiments = function(dataset, prefix, skipTraining) {
                 trainSet = bagging(trainSet)
                 
                 # Train the perceptron
-                perceptronModels[[i]][[j]] = perceptron.train(trainSet, 1, 5)
+                perceptronModels[[i]][[j]] = perceptron.train(trainSet, 1, 10)
             }
         }        
         # Saving the models
@@ -69,6 +69,7 @@ experiments = function(dataset, prefix, skipTraining) {
             # perceptronMetrics[[i]][[3]] = predictPerceptron(perceptronModelsPrunning[[i]]$reduceError, x[[i]]$test)            
         }
         saveRDS(perceptronMetrics, paste(prefix, "_perceptronMetrics.rds", sep = ""))
+        saveRDS(perceptronModelsPrunning, paste(prefix, "_perceptronModelsPrunning.rds", sep = ""))
     }
 }
 
@@ -80,3 +81,7 @@ data2 = read.table('data2.csv', sep=',', header=TRUE)
 ## Generate the pool
 experiments(data1, "data1", FALSE)
 experiments(data2, "data2", FALSE)
+
+## Prunning and metrics
+experiments(data1, "data1", TRUE)
+experiments(data2, "data2", TRUE)
