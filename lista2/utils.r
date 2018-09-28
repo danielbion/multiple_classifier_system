@@ -16,31 +16,102 @@ splitInFolds = function(x, numOfFolds){
     return (splited)
 }
 
-bestFirstPruning = function(pool, validationSet){
+reduceErrorPruning = function(pool, validationSet){
+   # Sort classifiers by accuracy
     accuracy = c()
     for(i in 1:length(pool)){
         accuracy = c(accuracy, getEnsembleAccuracy(list(pool[[i]]), validationSet))
     }
+    bestClassifierIdx = which.max(accuracy)
     
-    # Insert best classifier first
+    ensemble = list()
+    ensemble[[length(ensemble) + 1]] = pool[[bestClassifierIdx]]
+    remainingIdx = 1:length(pool)
+    remainingIdx = remainingIdx[-bestClassifierIdx]
+
+    while(length(remainingIdx) > 0){
+        print(paste("Reduce Error: Emsemble Size: ", length(ensemble)))
+        currentAccuracy = getEnsembleAccuracy(ensemble, validationSet)
+
+        newAccuracy = c()
+        for(i in 1:length(remainingIdx)){
+            testEnsemble = ensemble
+            testEnsemble[[length(testEnsemble) + 1]] = pool[[remainingIdx[i]]]
+            newAccuracy = c(newAccuracy, getEnsembleAccuracy(testEnsemble, validationSet))
+        }
+        
+        bestClassifierIdx = which.max(newAccuracy)
+        newAccuracy = max(newAccuracy)
+        if(newAccuracy > currentAccuracy){
+            ensemble[[length(ensemble) + 1]] = pool[[remainingIdx[bestClassifierIdx]]]
+            remainingIdx = remainingIdx[-bestClassifierIdx]
+        }else{
+            break
+        }
+    }
+    return (ensemble)
+}
+
+reduceErrorPruningOrdered = function(pool, validationSet){
+   # Sort classifiers by accuracy
+    accuracy = c()
+    for(i in 1:length(pool)){
+        accuracy = c(accuracy, getEnsembleAccuracy(list(pool[[i]]), validationSet))
+    }
     accuracyIdx = sort(accuracy, decreasing = TRUE,index.return=TRUE)$ix
+
     ensemble = list()
     ensemble[[length(ensemble) + 1]] = pool[[accuracyIdx[1]]]
     accuracyIdx = accuracyIdx[-1]
 
     while(length(accuracyIdx) > 0){
-        testEnsemble = ensemble
-        testEnsemble[[length(testEnsemble) + 1]] = pool[[accuracyIdx[1]]]
+        print(paste("Reduce Error: Emsemble Size: ", length(ensemble)))
         currentAccuracy = getEnsembleAccuracy(ensemble, validationSet)
-        newAccuracy = getEnsembleAccuracy(testEnsemble, validationSet)
-        if(newAccuracy >= currentAccuracy){
-            ensemble = testEnsemble
-            accuracyIdx = accuracyIdx[-1]
+
+        newAccuracy = c()
+        for(i in 1:length(accuracyIdx)){
+            testEnsemble = ensemble
+            testEnsemble[[length(testEnsemble) + 1]] = pool[[accuracyIdx[i]]]
+            newAccuracy = c(newAccuracy, getEnsembleAccuracy(testEnsemble, validationSet))
+        }
+        
+        bestClassifierIdx = which.max(newAccuracy)
+        newAccuracy = max(newAccuracy)
+        if(newAccuracy > currentAccuracy){
+            ensemble[[length(ensemble) + 1]] = pool[[accuracyIdx[bestClassifierIdx]]]
+            accuracyIdx = accuracyIdx[-bestClassifierIdx]
         }else{
             break
-        }    
+        }
     }
     return (ensemble)
+}
+
+bestFirstPruning = function(pool, validationSet){
+    # Sort classifiers by accuracy
+    accuracy = c()
+    for(i in 1:length(pool)){
+        accuracy = c(accuracy, getEnsembleAccuracy(list(pool[[i]]), validationSet))
+    }
+    accuracyIdx = sort(accuracy, decreasing = TRUE,index.return=TRUE)$ix
+
+    # Mount the ensembles
+    ensembles = list()
+    accuracy = c()    
+    for(i in 1:10){#length(pool)){
+        print(paste("Best First: Emsemble ", i))
+        if(i == 1){
+            ensembles[[i]] = list(pool[[accuracyIdx[i]]])
+        }else{
+            ensembles[[i]] = append(ensembles[[i-1]], list(pool[[accuracyIdx[i]]]))
+        }
+        accuracy = c(accuracy, getEnsembleAccuracy(ensembles[[i]], validationSet))
+    }
+    # plot(accuracy, ylim=c(0,1), type='l', main='Best First Pruning', xlab='Number of Classifiers on Ensamble', ylab='Accuracy')
+
+    bestEnsemble = ensembles[[which.max(accuracy)]]
+
+    return (bestEnsemble)
 }
 
 # http://www.cin.ufpe.br/~tg/2017-1/fnw_tg.pdf

@@ -42,34 +42,37 @@ experiments = function(dataset, prefix, skipTraining) {
 
     if(skipTraining){
         # Pruning
-        perceptronModelsPrunning = list()
+        perceptronModelsPruning = list()
         perceptronMetrics = list()
 
         for(i in 1:numOfFolds){            
-            print(i)
-            kdnValues = kdn(x[[i]]$train, 5)
-            perceptronModelsPrunning[[i]] = list()
+            print(paste("Fold> ", i)
+            kdnValues = kdn(x[[i]]$train, 10)
+            perceptronModelsPruning[[i]] = list()
             perceptronMetrics[[i]] = list()
 
+            kdnThreshold = 0.2
             validationSets = list()
             validationSets[[length(validationSets) + 1]] = x[[i]]$train
-            validationSets[[length(validationSets) + 1]] = x[[i]]$train[which(kdnValues > 0.5), ]
-            validationSets[[length(validationSets) + 1]] = x[[i]]$train[which(kdnValues <= 0.5), ]
+            validationSets[[length(validationSets) + 1]] = x[[i]]$train[which(kdnValues > kdnThreshold), ]
+            validationSets[[length(validationSets) + 1]] = x[[i]]$train[which(kdnValues <= kdnThreshold), ]
 
             for(j in 1:length(validationSets)){
                 if(nrow(validationSets[[j]]) < 1){
                     print("Empty Validation Set")
                 }
-                perceptronModelsPrunning[[i]]$bestFirst = bestFirstPruning(perceptronModels[[i]], validationSets[[j]])
-                # perceptronModelsPrunning[[i]]$reduceError = reduceErrorPruning(perceptronModels[[i]], validationSets[[j]])
-            }
-            
-            perceptronMetrics[[i]][[1]] = predictPerceptron(perceptronModels[[i]], x[[i]]$test)
-            perceptronMetrics[[i]][[2]] = predictPerceptron(perceptronModelsPrunning[[i]]$bestFirst, x[[i]]$test)
-            # perceptronMetrics[[i]][[3]] = predictPerceptron(perceptronModelsPrunning[[i]]$reduceError, x[[i]]$test)            
+                perceptronModelsPruning[[i]][[j]] = list()
+                perceptronModelsPruning[[i]][[j]]$bestFirst = bestFirstPruning(perceptronModels[[i]], validationSets[[j]])
+                perceptronModelsPruning[[i]][[j]]$reduceError = reduceErrorPruning(perceptronModels[[i]], validationSets[[j]])
+
+                perceptronMetrics[[i]][[j]] = list()
+                perceptronMetrics[[i]][[j]]$full = predictPerceptron(perceptronModels[[i]], x[[i]]$test)
+                perceptronMetrics[[i]][[j]]$bestFirst = predictPerceptron(perceptronModelsPruning[[i]][[j]]$bestFirst, x[[i]]$test)
+                perceptronMetrics[[i]][[j]]$reduceError = predictPerceptron(perceptronModelsPruning[[i]][[j]]$reduceError, x[[i]]$test)    
+            }       
         }
         saveRDS(perceptronMetrics, paste(prefix, "_perceptronMetrics.rds", sep = ""))
-        saveRDS(perceptronModelsPrunning, paste(prefix, "_perceptronModelsPrunning.rds", sep = ""))
+        saveRDS(perceptronModelsPruning, paste(prefix, "_perceptronModelsPruning.rds", sep = ""))
     }
 }
 
