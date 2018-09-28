@@ -9,7 +9,7 @@ source('utils.r')
 
 experiments = function(dataset, prefix, skipTraining) {
     numOfFolds = 10
-    sizeOfPool = 100
+    sizeOfPool = 5
 
     if (skipTraining) {
         x = readRDS(paste(prefix, "_x.rds", sep = ""))
@@ -44,12 +44,14 @@ experiments = function(dataset, prefix, skipTraining) {
         # Pruning
         perceptronModelsPruning = list()
         perceptronMetrics = list()
+        diversity = list()
 
         for(i in 1:numOfFolds){            
-            print(paste("Fold> ", i)
+            print(paste("Fold> ", i))
             kdnValues = kdn(x[[i]]$train, 10)
             perceptronModelsPruning[[i]] = list()
             perceptronMetrics[[i]] = list()
+            diversity[[i]] = list()
 
             kdnThreshold = 0.2
             validationSets = list()
@@ -69,10 +71,16 @@ experiments = function(dataset, prefix, skipTraining) {
                 perceptronMetrics[[i]][[j]]$full = predictPerceptron(perceptronModels[[i]], x[[i]]$test)
                 perceptronMetrics[[i]][[j]]$bestFirst = predictPerceptron(perceptronModelsPruning[[i]][[j]]$bestFirst, x[[i]]$test)
                 perceptronMetrics[[i]][[j]]$reduceError = predictPerceptron(perceptronModelsPruning[[i]][[j]]$reduceError, x[[i]]$test)    
+
+                diversity[[i]][[j]] = list()
+                diversity[[i]][[j]]$full = diversityMean(perceptronModels[[i]])
+                diversity[[i]][[j]]$bestFirst = diversityMean(perceptronModelsPruning[[i]][[j]]$bestFirst)
+                diversity[[i]][[j]]$reduceError = diversityMean(perceptronModelsPruning[[i]][[j]]$reduceError)
             }       
         }
         saveRDS(perceptronMetrics, paste(prefix, "_perceptronMetrics.rds", sep = ""))
         saveRDS(perceptronModelsPruning, paste(prefix, "_perceptronModelsPruning.rds", sep = ""))
+        saveRDS(diversity, paste(prefix, "_diversity.rds", sep = ""))
     }
 }
 
@@ -88,3 +96,15 @@ experiments(data2, "data2", FALSE)
 ## Prunning and metrics
 experiments(data1, "data1", TRUE)
 experiments(data2, "data2", TRUE)
+
+perceptronModelsPruning = readRDS("data1_perceptronModelsPruning.rds")
+numOfClassifiersBestFirst = c()
+numOfClassifiersReduceError = c()
+for(i in 1:10){
+    for(j in 1:3){
+        numOfClassifiersBestFirst = c(numOfClassifiersBestFirst, length(perceptronModelsPruning[[i]][[j]]$bestFirst))
+        numOfClassifiersReduceError = c(numOfClassifiersReduceError, length(perceptronModelsPruning[[i]][[j]]$reduceError))
+    }
+}
+plot(numOfClassifiersBestFirst, type='l')
+plot(numOfClassifiersReduceError, type='l')

@@ -16,6 +16,71 @@ splitInFolds = function(x, numOfFolds){
     return (splited)
 }
 
+testPair = function(classifier1, classifier2, x){
+    target = x[,ncol(x)]
+    x = x[, -ncol(x)]
+    n11 = 0
+    n00 = 0
+    n10 = 0
+    n01 = 0
+
+    for(i in 1:nrow(x)){
+        x1 = x[i,classifier1[[1]]]
+        pred1 = perceptron.test(x1, classifier1[[2]])
+
+        x2 = x[i,classifier2[[1]]]
+        pred2 = perceptron.test(x2, classifier2[[2]])
+
+        if(pred1 == target[i] && pred2 == target[i]){
+            n11 = n11 + 1
+        }else if(pred1 == target[i] && pred2 != target[i]){
+            n10 = n10 + 1
+        }else if(pred1 != target[i] && pred2 == target[i]){
+            n01 = n01 + 1
+        }else{
+            n00 = n00 + 1
+        }
+    }
+    return (list(n11, n10, n01, n00))
+}
+
+qStatistic = function(n11, n10, n01, n00, l){
+    if(n11 == l) {
+        return (1)
+    }
+    q = ((n11 * n00) - (n01 * n10)) / ((n11 * n00) + (n01 * n10))
+    return (q)
+}
+
+kappaStatistic = function(n11, n10, n01, n00, n){
+    if(n11 == l) {
+        return (1)
+    }
+    theta1 = (n11 + n00) / n
+    theta2 = (((n11 + n01) * (n11 + n10)) + ((n10 + n00) * (n01 + n00))) / (n ^2)
+    kappa = (theta1 - theta2) / (1 - theta2)
+    return (kappa)
+}
+
+diversityMean = function(ensemble, x){
+    q = 0
+    kappa = 0
+    l = nrow(x)
+    for(i in 1:(length(ensemble)-1)){
+        for(j in (i+1):length(ensemble)){
+            print(paste(i,j))
+            test = testPair(ensemble[[i]], ensemble[[j]], x)
+            q = q + qStatistic(test[[1]], test[[2]], test[[3]], test[[4]], l)
+            kappa = kappa + kappaStatistic(test[[1]], test[[2]], test[[3]], test[[4]], l)
+        }
+    }
+
+    q = 2 * q / (l * (l-1))
+    kappa = 2 * kappa / (l * (l-1))
+
+    return (list(q, kappa))
+}
+
 reduceErrorPruning = function(pool, validationSet){
    # Sort classifiers by accuracy
     accuracy = c()
@@ -42,7 +107,7 @@ reduceErrorPruning = function(pool, validationSet){
         
         bestClassifierIdx = which.max(newAccuracy)
         newAccuracy = max(newAccuracy)
-        if(newAccuracy > currentAccuracy){
+        if(newAccuracy >= currentAccuracy){
             ensemble[[length(ensemble) + 1]] = pool[[remainingIdx[bestClassifierIdx]]]
             remainingIdx = remainingIdx[-bestClassifierIdx]
         }else{
@@ -98,7 +163,7 @@ bestFirstPruning = function(pool, validationSet){
     # Mount the ensembles
     ensembles = list()
     accuracy = c()    
-    for(i in 1:10){#length(pool)){
+    for(i in 1:5){#length(pool)){
         print(paste("Best First: Emsemble ", i))
         if(i == 1){
             ensembles[[i]] = list(pool[[accuracyIdx[i]]])
@@ -109,7 +174,8 @@ bestFirstPruning = function(pool, validationSet){
     }
     # plot(accuracy, ylim=c(0,1), type='l', main='Best First Pruning', xlab='Number of Classifiers on Ensamble', ylab='Accuracy')
 
-    bestEnsemble = ensembles[[which.max(accuracy)]]
+    bestEnsemble = ensembles[[max(which(accuracy == max(accuracy)))]]
+    # bestEnsemble = ensembles[[which.max(accuracy)]]
 
     return (bestEnsemble)
 }
@@ -206,7 +272,7 @@ predictPerceptron = function(models, test){
     pred = matrix(0, length(models), nrow(test))
     for(j in 1:length(models)){
         t = test[,models[[j]][[1]]]
-        pred[j, ] = perceptron.test(t, models[[j]][[2]])        
+        pred[j, ] = perceptron.test(t, models[[j]][[2]])
     }
     metrics = getMetrics(pred, target)
     return (metrics)
