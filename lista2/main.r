@@ -73,9 +73,9 @@ experiments = function(dataset, prefix, skipTraining) {
                 perceptronMetrics[[i]][[j]]$reduceError = predictPerceptron(perceptronModelsPruning[[i]][[j]]$reduceError, x[[i]]$test)    
 
                 diversity[[i]][[j]] = list()
-                diversity[[i]][[j]]$full = diversityMean(perceptronModels[[i]])
-                diversity[[i]][[j]]$bestFirst = diversityMean(perceptronModelsPruning[[i]][[j]]$bestFirst)
-                diversity[[i]][[j]]$reduceError = diversityMean(perceptronModelsPruning[[i]][[j]]$reduceError)
+                diversity[[i]][[j]]$full = diversityMean(perceptronModels[[i]], x[[i]]$test)
+                diversity[[i]][[j]]$bestFirst = diversityMean(perceptronModelsPruning[[i]][[j]]$bestFirst, x[[i]]$test)
+                diversity[[i]][[j]]$reduceError = diversityMean(perceptronModelsPruning[[i]][[j]]$reduceError, x[[i]]$test)
             }       
         }
         saveRDS(perceptronMetrics, paste(prefix, "_perceptronMetrics.rds", sep = ""))

@@ -52,33 +52,39 @@ qStatistic = function(n11, n10, n01, n00, l){
     return (q)
 }
 
-kappaStatistic = function(n11, n10, n01, n00, n){
+kappaStatistic = function(n11, n10, n01, n00, l){
     if(n11 == l) {
         return (1)
     }
-    theta1 = (n11 + n00) / n
-    theta2 = (((n11 + n01) * (n11 + n10)) + ((n10 + n00) * (n01 + n00))) / (n ^2)
+    theta1 = (n11 + n00) / l
+    theta2 = (((n11 + n01) * (n11 + n10)) + ((n10 + n00) * (n01 + n00))) / (l ^2)
     kappa = (theta1 - theta2) / (1 - theta2)
     return (kappa)
 }
 
 diversityMean = function(ensemble, x){
-    q = 0
-    kappa = 0
-    l = nrow(x)
+    if(length(ensemble) < 2){
+        return (list(-1, -1))
+    }
+    q = c()
+    kappa = c()
+    n = nrow(x)
+    l = length(ensemble)
     for(i in 1:(length(ensemble)-1)){
-        for(j in (i+1):length(ensemble)){
-            print(paste(i,j))
+        print(paste("Diversity pair:", i))
+        for(j in (i+1):length(ensemble)){            
             test = testPair(ensemble[[i]], ensemble[[j]], x)
-            q = q + qStatistic(test[[1]], test[[2]], test[[3]], test[[4]], l)
-            kappa = kappa + kappaStatistic(test[[1]], test[[2]], test[[3]], test[[4]], l)
+            q = c(q, qStatistic(test[[1]], test[[2]], test[[3]], test[[4]], n))
+            kappa = c(kappa, kappaStatistic(test[[1]], test[[2]], test[[3]], test[[4]], n))
         }
     }
 
-    q = 2 * q / (l * (l-1))
-    kappa = 2 * kappa / (l * (l-1))
+    qSum = sum(q)
+    qSum = 2 * qSum / (l * (l-1))
+    kappaSum = sum(kappa)
+    kappaSum = 2 * kappaSum / (l * (l-1))
 
-    return (list(q, kappa))
+    return (list(qSum, kappaSum))
 }
 
 reduceErrorPruning = function(pool, validationSet){
@@ -107,7 +113,7 @@ reduceErrorPruning = function(pool, validationSet){
         
         bestClassifierIdx = which.max(newAccuracy)
         newAccuracy = max(newAccuracy)
-        if(newAccuracy >= currentAccuracy){
+        if((newAccuracy > currentAccuracy) || (newAccuracy >= currentAccuracy && length(ensemble) < 3)){
             ensemble[[length(ensemble) + 1]] = pool[[remainingIdx[bestClassifierIdx]]]
             remainingIdx = remainingIdx[-bestClassifierIdx]
         }else{
