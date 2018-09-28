@@ -98,6 +98,8 @@ experiments(data1, "data1", TRUE)
 experiments(data2, "data2", TRUE)
 
 perceptronModelsPruning = readRDS("data1_perceptronModelsPruning.rds")
+perceptronModelsPruning = readRDS("data2_perceptronModelsPruning.rds")
+
 numOfClassifiersBestFirst = c()
 numOfClassifiersReduceError = c()
 for(i in 1:10){
@@ -108,3 +110,5 @@ for(i in 1:10){
 }
 plot(numOfClassifiersBestFirst, type='l')
 plot(numOfClassifiersReduceError, type='l')
+
+diversity = readRDS("data1_diversity.rds")

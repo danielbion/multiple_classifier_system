@@ -46,7 +46,7 @@ testPair = function(classifier1, classifier2, x){
 
 qStatistic = function(n11, n10, n01, n00, l){
     if(n11 == l) {
-        return (1)
+        return (0)
     }
     q = ((n11 * n00) - (n01 * n10)) / ((n11 * n00) + (n01 * n10))
     return (q)
@@ -54,7 +54,7 @@ qStatistic = function(n11, n10, n01, n00, l){
 
 kappaStatistic = function(n11, n10, n01, n00, l){
     if(n11 == l) {
-        return (1)
+        return (0)
     }
     theta1 = (n11 + n00) / l
     theta2 = (((n11 + n01) * (n11 + n10)) + ((n10 + n00) * (n01 + n00))) / (l ^2)
