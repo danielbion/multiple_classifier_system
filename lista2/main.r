@@ -9,7 +9,7 @@ source('utils.r')
 
 experiments = function(dataset, prefix, skipTraining) {
     numOfFolds = 10
-    sizeOfPool = 5
+    sizeOfPool = 100
 
     if (skipTraining) {
         x = readRDS(paste(prefix, "_x.rds", sep = ""))
@@ -93,22 +93,6 @@ data2 = read.table('data2.csv', sep=',', header=TRUE)
 experiments(data1, "data1", FALSE)
 experiments(data2, "data2", FALSE)
 
-## Prunning and metrics
+## Pruning and metrics
 experiments(data1, "data1", TRUE)
 experiments(data2, "data2", TRUE)
-
-perceptronModelsPruning = readRDS("data1_perceptronModelsPruning.rds")
-perceptronModelsPruning = readRDS("data2_perceptronModelsPruning.rds")
-
-numOfClassifiersBestFirst = c()
-numOfClassifiersReduceError = c()
-for(i in 1:10){
-    for(j in 1:3){
-        numOfClassifiersBestFirst = c(numOfClassifiersBestFirst, length(perceptronModelsPruning[[i]][[j]]$bestFirst))
-        numOfClassifiersReduceError = c(numOfClassifiersReduceError, length(perceptronModelsPruning[[i]][[j]]$reduceError))
-    }
-}
-plot(numOfClassifiersBestFirst, type='l')
-plot(numOfClassifiersReduceError, type='l')
-
-diversity = readRDS("data1_diversity.rds")

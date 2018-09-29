@@ -64,7 +64,8 @@ kappaStatistic = function(n11, n10, n01, n00, l){
 
 diversityMean = function(ensemble, x){
     if(length(ensemble) < 2){
-        return (list(-1, -1))
+        print("Ensemble with 1 classifier")
+        return (list(0, 0))
     }
     q = c()
     kappa = c()
@@ -169,7 +170,7 @@ bestFirstPruning = function(pool, validationSet){
     # Mount the ensembles
     ensembles = list()
     accuracy = c()    
-    for(i in 1:5){#length(pool)){
+    for(i in 1:length(pool)){
         print(paste("Best First: Emsemble ", i))
         if(i == 1){
             ensembles[[i]] = list(pool[[accuracyIdx[i]]])
@@ -180,7 +181,7 @@ bestFirstPruning = function(pool, validationSet){
     }
     # plot(accuracy, ylim=c(0,1), type='l', main='Best First Pruning', xlab='Number of Classifiers on Ensamble', ylab='Accuracy')
 
-    bestEnsemble = ensembles[[max(which(accuracy == max(accuracy)))]]
+    bestEnsemble = ensembles[[max(which(accuracy == max(accuracy)))]] # Critério de desempate proposto
     # bestEnsemble = ensembles[[which.max(accuracy)]]
 
     return (bestEnsemble)
