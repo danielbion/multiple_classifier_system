@@ -1,0 +1,3 @@
+main.r: Treinamento, Teste, Salvar métricas
+utils.r: Métodos de ensamble, métodos de classificação
+results.r: Leitura e Análise dos resultados
