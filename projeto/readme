@@ -1,3 +1,10 @@
 main.r: Treinamento, Teste, Salvar métricas
 utils.r: Métodos de ensamble, métodos de classificação
 results.r: Leitura e Análise dos resultados
+
+
+Dividir classe majoritária em vários bins com o tamanho da classe minoritária usando o clusterbal ou splitbal
+Agregar a classe minoritária e cada bin e treinar classificadores (Naive Bayes, C4.5, RIPPER, Random Forest, SMO, IBK)
+Combinar os classificadores Usando Max, min, producty, majority vote, sum + distance
+Comparar com random under sampling, random over sampling, SMOTE, Meta Cost, Bagging, Boosting, Easy-Emsemble, SMOTEBoost, RUSBoost, Underbagging
+46 imbalanced datasets

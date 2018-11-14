@@ -209,6 +209,10 @@ bagging = function(x){
     return (x)
 }
 
+bootstrap = function(x){
+    return (bagging(x))
+}
+
 subset = function(x, percent){
     numOfRows = floor(nrow(x) * percent)
     x = x[sample(numOfRows),]
