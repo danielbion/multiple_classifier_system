@@ -9,7 +9,7 @@ source('utils.r')
 
 NB = make_Weka_classifier("weka/classifiers/bayes/NaiveBayes")
 
-experiments = function(data, classifier, rule){
+experiments = function(data, classifier, rules){
     numOfFolds = 10
     
     # Padronizar variáveis explicativas entre 0 e 1
@@ -45,28 +45,34 @@ experiments = function(data, classifier, rule){
             pool[[j]] = classifier(target ~ ., bins[[j]])
         }
 
-        # Aplicar modelo no conjunto de teste com a regra de combinação escolhida
-        p = predictPool(pool, testSet, rule)    
-
-        # Calcular a métrica de desempenho
-        auc[[i]] = roc.curve(testSet$target, p, plotit = F)$auc
+        # Aplicar modelo no conjunto de teste para cada regra de combinação
+        auc[[i]] = list()
+        for(j in 1:length(rules)){
+            p = predictPool(pool, testSet, rules[[j]])
+            auc[[i]][[j]] = roc.curve(testSet$target, p, plotit = F)$auc
+        }
     }
 
     return (auc)
 }
 
+data = read.table('data3.csv' , sep=',', header=T)
+
 files = list.files('data/')
 result = list()
+
+rules = list(majorityVote, maxRule, minRule, prodRule, sumRule)
+
 for(i in 1:length(files)){
     print(i)
     data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
 
     result[[i]] = list()
-    result[[i]]$naiveBayes_MajorityVote = experiments(data, NB, majorityVote)
-    result[[i]]$J48_MajorityVote = experiments(data, J48, majorityVote)
-    result[[i]]$JRip_MajorityVote = experiments(data, JRip, majorityVote)
-    result[[i]]$SMO_MajorityVote = experiments(data, SMO, majorityVote)
-    result[[i]]$IBK_MajorityVote = experiments(data, IBk, majorityVote)
-    result[[i]]$randomForest_MajorityVote = experiments(data, randomForest, majorityVote)
+    result[[i]]$naiveBayes = experiments(data, NB, rules)
+    result[[i]]$J48 = experiments(data, J48, rules)
+    result[[i]]$JRip = experiments(data, JRip, rules)
+    result[[i]]$SMO = experiments(data, SMO, rules)
+    result[[i]]$IBK = experiments(data, IBk, rules)
+    result[[i]]$randomForest = experiments(data, randomForest, rules)
 }
 

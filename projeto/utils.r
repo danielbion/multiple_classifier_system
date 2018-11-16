@@ -32,20 +32,41 @@ predictPool = function(pool, test, rule){
     target = test[, 'target']
     test = test[, -ncol(test)]
 
-    predClassifier = data.frame(matrix(0, length(pool), nrow(test)))
+    hard = data.frame(matrix(0, length(pool), nrow(test)))
+    prob1 = hard
+    prob2 = hard
     for(j in 1:length(pool)){
-        predClassifier[j, ] = predict(pool[[j]], test)
+        p = predict(pool[[j]], test, type = 'probability')
+        prob1[j, ] = p[, 1]
+        prob2[j, ] = p[, 2]
+        hard[j, ] = predict(pool[[j]], test)
     }
     
     pred = list()
     for(j in 1:length(target)){
-        pred[[j]] = rule(predClassifier[,j])
+        pred[[j]] = rule(hard[, j], prob1[, j], prob2[, j])
     }
     pred = array(unlist(pred))
     pred = factor(pred, levels = c('negative','positive'))
     return(pred)
 }
 
-majorityVote = function(predicts){
-    return (names(which.max(table(predicts))))
+majorityVote = function(hard, prob1, prob2){
+    return (names(which.max(table(hard))))
+}
+
+maxRule = function(hard, prob1, prob2){
+    return (ifelse(max(prob1) > max(prob2), 'negative', 'positive'))
+}
+
+minRule = function(hard, prob1, prob2){
+    return (ifelse(min(prob1) > min(prob2), 'negative', 'positive'))
+}
+
+prodRule = function(hard, prob1, prob2){
+    return (ifelse(prod(prob1) > prod(prob2), 'negative', 'positive'))
+}
+
+sumRule = function(hard, prob1, prob2){
+    return (ifelse(sum(prob1) > sum(prob2), 'negative', 'positive'))
 }
