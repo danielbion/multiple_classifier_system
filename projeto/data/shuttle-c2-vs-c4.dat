@@ -1,17 +1,3 @@
-@relation shuttle-c2-vs-c4
-@attribute A1 integer [37, 123]
-@attribute A2 integer [-85, 1409]
-@attribute A3 integer [77, 108]
-@attribute A4 integer [-587, 10]
-@attribute A5 integer [-46, 436]
-@attribute A6 integer [-30, 6339]
-@attribute A7 integer [-18, 40]
-@attribute A8 integer [-353, 130]
-@attribute A9 integer [-356, 126]
-@attribute Class {positive, negative}
-@input A1,A2,A3,A4,A5,A6,A7,A8,A9
-@output Class
-@data
 52,-30,79,0,0,0,27,79,52,positive
 90,-40,107,0,64,-28,17,42,26,positive
 70,-30,107,0,60,-13,37,47,10,positive

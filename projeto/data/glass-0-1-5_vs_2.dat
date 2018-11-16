@@ -1,17 +1,3 @@
-@relation glass-0-1-5_vs_2
-@attribute RI real [1.51115, 1.53393]
-@attribute Na real [10.73, 17.38]
-@attribute Mg real [0.0, 4.49]
-@attribute Al real [0.29, 2.1197]
-@attribute Si real [69.81, 75.41]
-@attribute K real [0.0, 1.09917]
-@attribute Ca real [6.64588, 16.19]
-@attribute Ba real [0.0, 3.15]
-@attribute Fe real [0.0, 0.51]
-@attribute typeGlass {positive,negative}
-@input RI,Na,Mg,Al,Si,K,Ca,Ba,Fe
-@output typeGlass
-@data
 1.51588824,12.87795,3.43036,1.40066,73.282,0.68931,8.04468,0.0,0.1224,negative
 1.5176423,12.9777,3.53812,1.21127,73.002,0.65205,8.52888,0.0,0.0,negative
 1.52212996,14.20795,3.82099,0.46976,71.77,0.11178,9.5726,0.0,0.0,negative

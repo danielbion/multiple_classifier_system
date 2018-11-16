@@ -1,16 +1,3 @@
-@relation yeast-1-4-5-8_vs_7
-@attribute Mcg real [0.11, 1.0]
-@attribute Gvh real [0.13, 1.0]
-@attribute Alm real [0.21, 1.0]
-@attribute Mit real [0.0, 1.0]
-@attribute Erl real [0.5, 1.0]
-@attribute Pox real [0.0, 0.83]
-@attribute Vac real [0.0, 0.73]
-@attribute Nuc real [0.0, 1.0]
-@attribute Class {positive,negative}
-@inputs Mcg, Gvh, Alm, Mit, Erl, Pox, Vac, Nuc
-@outputs Class
-@data
 0.58,0.44,0.57,0.13,0.5,0.0,0.54,0.22,negative
 0.48,0.45,0.59,0.2,0.5,0.0,0.58,0.34,negative
 0.43,0.39,0.54,0.21,0.5,0.0,0.53,0.27,negative

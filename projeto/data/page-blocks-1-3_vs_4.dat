@@ -1,18 +1,3 @@
-@relation page-blocks-1-3_vs_4
-@attribute Height integer [1, 804]
-@attribute Lenght integer [1, 553]
-@attribute Area integer [7, 143993]
-@attribute Eccen real [0.0070, 537.0]
-@attribute P_black real [0.052, 1.0]
-@attribute P_and real [0.062, 1.0]
-@attribute Mean_tr real [1.0, 4955.0]
-@attribute Blackpix integer [1, 33017]
-@attribute Blackand integer [7, 46133]
-@attribute Wb_trans integer [1, 3212]
-@attribute Class {positive,negative}
-@inputs Height, Lenght, Area, Eccen, P_black, P_and, Mean_tr, Blackpix, Blackand, Wb_trans
-@output Class
-@data
 3,113,339,37.667,0.41,0.472,13.9,139,160,10,negative
 3,59,177,19.667,0.475,0.475,84.0,84,84,1,negative
 2,20,40,10.0,0.675,0.675,27.0,27,27,1,negative

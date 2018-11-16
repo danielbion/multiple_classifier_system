@@ -42,7 +42,7 @@ predictPool = function(pool, test, rule){
         pred[[j]] = rule(predClassifier[,j])
     }
     pred = array(unlist(pred))
-    pred = factor(pred, levels = c('false','true'))
+    pred = factor(pred, levels = c('negative','positive'))
     return(pred)
 }
 
