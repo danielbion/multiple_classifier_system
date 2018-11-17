@@ -10,7 +10,8 @@ setwd(path)
 source('utils.r')
 
 NB = make_Weka_classifier("weka/classifiers/bayes/NaiveBayes")
-rules = list(majorityVote, maxRule, minRule, prodRule, sumRule, majorityVoteDistance, maxDistanceRule, minDistanceRule, prodDistanceRule, sumDistanceRule)
+rules = list(majorityVote, maxRule, minRule, prodRule, sumRule, 
+    majorityVoteDistance, maxDistanceRule, minDistanceRule, prodDistanceRule, sumDistanceRule)
 
 files = list.files('data/')
 result = list()
@@ -27,3 +28,5 @@ for(i in 1:length(files)){
     result[[i]]$IBK = experiments(data, IBk, rules, splitBal)
     result[[i]]$randomForest = experiments(data, randomForest, rules, splitBal)
 }
+
+saveRDS(result, "results.rds")
