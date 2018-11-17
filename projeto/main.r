@@ -2,13 +2,15 @@ library('ROSE')
 library('caret')
 library('randomForest')
 library('RWeka')
+library('dbscan')
+library('TSdist')
 
 path = 'C:/Projects/lista1_multiple_classifier_system/projeto'
 setwd(path)
 source('utils.r')
 
 NB = make_Weka_classifier("weka/classifiers/bayes/NaiveBayes")
-rules = list(majorityVote, maxRule, minRule, prodRule, sumRule)
+rules = list(majorityVote, maxRule, minRule, prodRule, sumRule, majorityVoteDistance, maxDistanceRule, minDistanceRule, prodDistanceRule, sumDistanceRule)
 
 files = list.files('data/')
 result = list()

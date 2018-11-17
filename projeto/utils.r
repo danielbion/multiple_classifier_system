@@ -27,7 +27,7 @@ bootstrap = function(x){
     return (x)
 }
 
-predictPool = function(pool, test, rule){
+predictPool = function(pool, bins, test, d1, d2, rule){
     # Predict no test dataset
     target = test[, 'target']
     test = test[, -ncol(test)]
@@ -53,32 +53,75 @@ predictPool = function(pool, test, rule){
     
     pred = list()
     for(j in 1:length(target)){
-        # Aplicar a regra escolhida
-        pred[[j]] = rule(hard[, j], prob1[, j], prob2[, j])
+        pred[[j]] = rule(list(hard = hard[, j], prob1 = prob1[, j], prob2 = prob2[, j], d1 = d1, d2 = d2))
     }
     pred = array(unlist(pred))
     pred = factor(pred, levels = c('negative','positive'))
     return(pred)
 }
 
-majorityVote = function(hard, prob1, prob2){
-    return (names(which.max(table(hard))))
+calcDistance = function(testInstance, bins){
+    d1 = c()
+    d2 = c()
+    for(i in 1:length(bins)){    
+        bin = bins[[i]]
+        negativeIdx = which(bin$target == 'negative')
+        negative = bin[negativeIdx, ]
+        positive = bin[-negativeIdx, ]
+
+        positive = data.matrix(positive[, -ncol(positive)])
+        negative = data.matrix(negative[, -ncol(negative)])
+
+        testInstance = as.numeric(testInstance)
+
+        positiveDistance = mean(apply(positive, 1, EuclideanDistance, y = testInstance))
+        negativeDistance = mean(apply(negative, 1, EuclideanDistance, y = testInstance))
+        d1[i] = positiveDistance
+        d2[i] = negativeDistance
+    }
+    return (list(d1, d2))
 }
 
-maxRule = function(hard, prob1, prob2){
-    return (ifelse(max(prob1) > max(prob2), 'negative', 'positive'))
+majorityVote = function(info){
+    tb = table(factor(info$hard, levels=c('negative', 'positive')))
+    return (names(which.max(tb)))
 }
 
-minRule = function(hard, prob1, prob2){
-    return (ifelse(min(prob1) > min(prob2), 'negative', 'positive'))
+majorityVoteDistance = function(info){
+    tb = table(factor(info$hard, levels=c('negative', 'positive')))
+    return (names(which.max(tb/c(sum(info$d1+1), sum(info$d2+2)) )))
 }
 
-prodRule = function(hard, prob1, prob2){
-    return (ifelse(prod(prob1) > prod(prob2), 'negative', 'positive'))
+maxRule = function(info){
+    return (ifelse(max(info$prob1) > max(info$prob2), 'negative', 'positive'))
 }
 
-sumRule = function(hard, prob1, prob2){
-    return (ifelse(sum(prob1) > sum(prob2), 'negative', 'positive'))
+maxDistanceRule = function(info){
+    return (ifelse(max(info$prob1/(info$d1+1)) > max(info$prob2/(info$d2+1)), 'negative', 'positive'))
+}
+
+minRule = function(info){
+    return (ifelse(min(info$prob1) > min(info$prob2), 'negative', 'positive'))
+}
+
+minDistanceRule = function(info){
+    return (ifelse(min(info$prob1/(info$d1+1)) > min(info$prob2/(info$d2+1)), 'negative', 'positive'))
+}
+
+prodRule = function(info){
+    return (ifelse(prod(info$prob1) > prod(info$prob2), 'negative', 'positive'))
+}
+
+prodDistanceRule = function(info){
+    return (ifelse(prod(info$prob1/(info$d1+1)) > prod(info$prob2/(info$d2+1)), 'negative', 'positive'))
+}
+
+sumRule = function(info){
+    return (ifelse(sum(info$prob1) > sum(info$prob2), 'negative', 'positive'))
+}
+
+sumDistanceRule = function(info){
+    return (ifelse(sum(info$prob1/(info$d1+1)) > sum(info$prob2/(info$d2+1)), 'negative', 'positive'))
 }
 
 splitBal = function(majorityClass, numOfBins){
@@ -107,6 +150,7 @@ experiments = function(data, classifier, rules, splitMethod){
     auc = list()
 
     for (i in 1:numOfFolds) {
+        print(paste("Fold ", i))
         trainSet = x[[i]]$train
         testSet = x[[i]]$test
 
@@ -132,10 +176,20 @@ experiments = function(data, classifier, rules, splitMethod){
             pool[[j]] = classifier(target ~ ., bins[[j]])
         }
 
+        d1 = matrix(0, nrow(testSet), length(bins))
+        d2 = d1
+        for(j in 1:nrow(testSet)){
+            print(paste("Calc Distance ", j, "of", nrow(testSet)))
+            d = calcDistance(testSet[j, -ncol(testSet)], bins)
+            d1[j, ] = d[[1]]
+            d2[j, ] = d[[2]]
+        }
+
         # Aplicar modelo no conjunto de teste para cada regra de combinação
         auc[[i]] = list()
         for(j in 1:length(rules)){
-            p = predictPool(pool, testSet, rules[[j]])
+            print(paste("Rules ", j, "of", length(rules)))
+            p = predictPool(pool, bins, testSet, d1, d2, rules[[j]])
             auc[[i]][[j]] = roc.curve(testSet$target, p, plotit = F)$auc
         }
     }
