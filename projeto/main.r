@@ -13,11 +13,11 @@ NB = make_Weka_classifier("weka/classifiers/bayes/NaiveBayes")
 rules = list(majorityVote, maxRule, minRule, prodRule, sumRule, 
     majorityVoteDistance, maxDistanceRule, minDistanceRule, prodDistanceRule, sumDistanceRule)
 
-startData = 3
+startData = 30
 
 files = list.files('data/')
 result = list()
-result = readRDS(paste("results/results", startData - 1))
+result = readRDS(paste("results/results", startData - 1, ".rds"))
 
 # SplitBal
 for(i in startData:length(files)){
