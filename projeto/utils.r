@@ -179,7 +179,7 @@ experiments = function(data, classifier, rules, splitMethod){
         d1 = matrix(0, nrow(testSet), length(bins))
         d2 = d1
         for(j in 1:nrow(testSet)){
-            print(paste("Calc Distance ", j, "of", nrow(testSet)))
+            print(paste(" > Calc Distance ", j, "of", nrow(testSet)))
             d = calcDistance(testSet[j, -ncol(testSet)], bins)
             d1[j, ] = d[[1]]
             d2[j, ] = d[[2]]
@@ -188,7 +188,7 @@ experiments = function(data, classifier, rules, splitMethod){
         # Aplicar modelo no conjunto de teste para cada regra de combinação
         auc[[i]] = list()
         for(j in 1:length(rules)){
-            print(paste("Rules ", j, "of", length(rules)))
+            print(paste(" > Rules ", j, "of", length(rules)))
             p = predictPool(pool, bins, testSet, d1, d2, rules[[j]])
             auc[[i]][[j]] = roc.curve(testSet$target, p, plotit = F)$auc
         }

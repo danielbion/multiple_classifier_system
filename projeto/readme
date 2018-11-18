@@ -8,3 +8,9 @@ Agregar a classe minoritária em cada bin e treinar classificadores (Naive Bayes
 Combinar os classificadores Usando Max, min, producty, majority vote, sum + distance
 Comparar com random under sampling, random over sampling, SMOTE, Meta Cost, Bagging, Boosting, Easy-Emsemble, SMOTEBoost, RUSBoost, Underbagging
 46 imbalanced datasets
+
+Que regra é melhor com splitbal? Probabilidade e ranking
+Que regra é melhor com clusterbal? Probabilidade e ranking
+Melhor regra com split bal, melhor com clusterbal, qual é melhor?
+Comparar o melhor com métodos da literatura
+
