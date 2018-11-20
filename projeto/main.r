@@ -2,6 +2,7 @@ library('ROSE')
 library('caret')
 library('randomForest')
 library('RWeka')
+library('DMwR')
 library('dbscan')
 library('TSdist')
 
@@ -107,133 +108,113 @@ IBKRank = calcRank(IBK)
 
 # External Methods
 # Original Dataset
-startData = 1
 result = list()
-for(i in startData:length(files)){
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
     print(paste("Dataset", i))
     data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
     
-    result[[i]] = list()
-    print("1 - Naive Bayes")
-    result[[i]]$naiveBayes = original(data, NB, orig)
-    print("2 - J48")
-    result[[i]]$J48 = original(data, J48, orig)
-    print("3 - JRip")
-    result[[i]]$JRip = original(data, JRip, orig)
-    print("4 - SMO")
-    result[[i]]$SMO = original(data, SMO, orig)
-    print("5 - IBK")
-    result[[i]]$IBK = original(data, IBk, orig)
-    print("6 - RandomForest")
-    result[[i]]$randomForest = original(data, randomForest, orig)
+    result$naiveBayes = c(result$naiveBayes, mean(original(data, NB, orig)))
+    result$J48 = c(result$J48, mean(original(data, J48, orig)))
+    result$JRip = c(result$JRip, mean(original(data, JRip, orig)))
+    result$randomForest = c(result$randomForest, mean(original(data, randomForest, orig)))
+    result$SMO = c(result$SMO, mean(original(data, SMO, orig)))
+    result$IBK = c(result$IBK, mean(original(data, IBk, orig)))
 }
 saveRDS(result, paste("results/orig_results.rds"))
-naiveBayes = 0
-J48 = 0
-JRip = 0
-SMO = 0
-IBK = 0
-randomForest = 0
 
-for(i in 1:length(result)){
-    naiveBayes = naiveBayes + result[[i]]$naiveBayes
-    J48 = J48 + result[[i]]$J48
-    JRip = JRip + result[[i]]$JRip
-    SMO = SMO + result[[i]]$SMO
-    IBK = IBK + result[[i]]$IBK
-    randomForest = randomForest + result[[i]]$randomForest
-}
-naiveBayes = naiveBayes / length(result)
-J48 = J48 / length(result)
-JRip = JRip / length(result)
-randomForest = randomForest / length(result)
-SMO = SMO / length(result)
-IBK = IBK / length(result)
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)
 
 # Under Sampling
-startData = 1
 result = list()
-for(i in startData:length(files)){
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
     print(paste("Dataset", i))
     data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
     
-    result[[i]] = list()
-    print("1 - Naive Bayes")
-    result[[i]]$naiveBayes = original(data, NB, underSampling)
-    print("2 - J48")
-    result[[i]]$J48 = original(data, J48, underSampling)
-    print("3 - JRip")
-    result[[i]]$JRip = original(data, JRip, underSampling)
-    print("4 - SMO")
-    result[[i]]$SMO = original(data, SMO, underSampling)
-    print("5 - IBK")
-    result[[i]]$IBK = original(data, IBk, underSampling)
-    print("6 - RandomForest")
-    result[[i]]$randomForest = original(data, randomForest, underSampling)
+    result$naiveBayes = c(result$naiveBayes, mean(original(data, NB, underSampling)))
+    result$J48 = c(result$J48, mean(original(data, J48, underSampling)))
+    result$JRip = c(result$JRip, mean(original(data, JRip, underSampling)))
+    result$randomForest = c(result$randomForest, mean(original(data, randomForest, underSampling)))
+    result$SMO = c(result$SMO, mean(original(data, SMO, underSampling)))
+    result$IBK = c(result$IBK, mean(original(data, IBk, underSampling)))
 }
 saveRDS(result, paste("results/under_results.rds"))
-naiveBayes = 0
-J48 = 0
-JRip = 0
-SMO = 0
-IBK = 0
-randomForest = 0
-for(i in 1:length(result)){
-    naiveBayes = naiveBayes + result[[i]]$naiveBayes
-    J48 = J48 + result[[i]]$J48
-    JRip = JRip + result[[i]]$JRip
-    SMO = SMO + result[[i]]$SMO
-    IBK = IBK + result[[i]]$IBK
-    randomForest = randomForest + result[[i]]$randomForest
-}
-naiveBayes = naiveBayes / length(result)
-J48 = J48 / length(result)
-JRip = JRip / length(result)
-randomForest = randomForest / length(result)
-SMO = SMO / length(result)
-IBK = IBK / length(result)
+
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)
 
 # Over Sampling
-startData = 1
 result = list()
-for(i in startData:length(files)){
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
     print(paste("Dataset", i))
     data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
     
-    result[[i]] = list()
-    print("1 - Naive Bayes")
-    result[[i]]$naiveBayes = original(data, NB, overSampling)
-    print("2 - J48")
-    result[[i]]$J48 = original(data, J48, overSampling)
-    print("3 - JRip")
-    result[[i]]$JRip = original(data, JRip, overSampling)
-    print("4 - SMO")
-    result[[i]]$SMO = original(data, SMO, overSampling)
-    print("5 - IBK")
-    result[[i]]$IBK = original(data, IBk, overSampling)
-    print("6 - RandomForest")
-    result[[i]]$randomForest = original(data, randomForest, overSampling)
+    result$naiveBayes = c(result$naiveBayes, mean(original(data, NB, overSampling)))
+    result$J48 = c(result$J48, mean(original(data, J48, overSampling)))
+    result$JRip = c(result$JRip, mean(original(data, JRip, overSampling)))
+    result$randomForest = c(result$randomForest, mean(original(data, randomForest, overSampling)))
+    result$SMO = c(result$SMO, mean(original(data, SMO, overSampling)))
+    result$IBK = c(result$IBK, mean(original(data, IBk, overSampling)))
 }
 saveRDS(result, paste("results/over_results.rds"))
 
-naiveBayes = 0
-J48 = 0
-JRip = 0
-SMO = 0
-IBK = 0
-randomForest = 0
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)
 
-for(i in 1:length(result)){
-    naiveBayes = naiveBayes + result[[i]]$naiveBayes
-    J48 = J48 + result[[i]]$J48
-    JRip = JRip + result[[i]]$JRip
-    SMO = SMO + result[[i]]$SMO
-    IBK = IBK + result[[i]]$IBK
-    randomForest = randomForest + result[[i]]$randomForest
+# SMOTE
+result = list()
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result$naiveBayes = c(result$naiveBayes, mean(original(data, NB, smoted)))
+    result$J48 = c(result$J48, mean(original(data, J48, smoted)))
+    result$JRip = c(result$JRip, mean(original(data, JRip, smoted)))
+    result$randomForest = c(result$randomForest, mean(original(data, randomForest, smoted)))
+    result$SMO = c(result$SMO, mean(original(data, SMO, smoted)))
+    result$IBK = c(result$IBK, mean(original(data, IBk, smoted)))
 }
-naiveBayes = naiveBayes / length(result)
-J48 = J48 / length(result)
-JRip = JRip / length(result)
-randomForest = randomForest / length(result)
-SMO = SMO / length(result)
-IBK = IBK / length(result)
+saveRDS(result, paste("results/smote_results.rds"))
+
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)

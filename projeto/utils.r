@@ -207,17 +207,17 @@ original = function(data, classifier, sampling){
     
     # Quebrar dataset em 10 folds divididos em treino e teste
     x = splitInFolds(x, numOfFolds)
-    auc = list()
+    auc = c()
 
     for (i in 1:numOfFolds) {
         trainSet = x[[i]]$train
         testSet = x[[i]]$test
-      
+    
         # Treinar o classificador base escolhido para cada bin
         c = classifier(target ~ ., trainSet)
 
         p = predict(c, testSet)
-        auc = roc.curve(testSet$target, p, plotit = F)$auc
+        auc = c(auc, roc.curve(testSet$target, p, plotit = F)$auc)
     }
     return (auc)
 }
@@ -243,5 +243,10 @@ underSampling = function(data){
     idxsClass2 = sample(which(data$target == 'positive'), class2)
     data = rbind(data[idxsClass1,], data[idxsClass2,])
     data = data[sample(nrow(data)),]
+    return (data)
+}
+
+smoted = function(data){
+    data = SMOTE(target~., data, perc.over = 600, perc.under = 100)
     return (data)
 }
