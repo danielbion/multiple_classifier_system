@@ -42,6 +42,7 @@ for(i in startData:length(files)){
 
 startData = 1
 # ClusterBal
+result = list()
 for(i in startData:length(files)){
     print(paste("Dataset", i))
     data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
@@ -104,5 +105,135 @@ SMORank = calcRank(SMO)
 IBKRank = calcRank(IBK)
 
 
-media data, fold
-metodo regra
+# External Methods
+# Original Dataset
+startData = 1
+result = list()
+for(i in startData:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result[[i]] = list()
+    print("1 - Naive Bayes")
+    result[[i]]$naiveBayes = original(data, NB, orig)
+    print("2 - J48")
+    result[[i]]$J48 = original(data, J48, orig)
+    print("3 - JRip")
+    result[[i]]$JRip = original(data, JRip, orig)
+    print("4 - SMO")
+    result[[i]]$SMO = original(data, SMO, orig)
+    print("5 - IBK")
+    result[[i]]$IBK = original(data, IBk, orig)
+    print("6 - RandomForest")
+    result[[i]]$randomForest = original(data, randomForest, orig)
+}
+saveRDS(result, paste("results/orig_results.rds"))
+naiveBayes = 0
+J48 = 0
+JRip = 0
+SMO = 0
+IBK = 0
+randomForest = 0
+
+for(i in 1:length(result)){
+    naiveBayes = naiveBayes + result[[i]]$naiveBayes
+    J48 = J48 + result[[i]]$J48
+    JRip = JRip + result[[i]]$JRip
+    SMO = SMO + result[[i]]$SMO
+    IBK = IBK + result[[i]]$IBK
+    randomForest = randomForest + result[[i]]$randomForest
+}
+naiveBayes = naiveBayes / length(result)
+J48 = J48 / length(result)
+JRip = JRip / length(result)
+randomForest = randomForest / length(result)
+SMO = SMO / length(result)
+IBK = IBK / length(result)
+
+# Under Sampling
+startData = 1
+result = list()
+for(i in startData:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result[[i]] = list()
+    print("1 - Naive Bayes")
+    result[[i]]$naiveBayes = original(data, NB, underSampling)
+    print("2 - J48")
+    result[[i]]$J48 = original(data, J48, underSampling)
+    print("3 - JRip")
+    result[[i]]$JRip = original(data, JRip, underSampling)
+    print("4 - SMO")
+    result[[i]]$SMO = original(data, SMO, underSampling)
+    print("5 - IBK")
+    result[[i]]$IBK = original(data, IBk, underSampling)
+    print("6 - RandomForest")
+    result[[i]]$randomForest = original(data, randomForest, underSampling)
+}
+saveRDS(result, paste("results/under_results.rds"))
+naiveBayes = 0
+J48 = 0
+JRip = 0
+SMO = 0
+IBK = 0
+randomForest = 0
+for(i in 1:length(result)){
+    naiveBayes = naiveBayes + result[[i]]$naiveBayes
+    J48 = J48 + result[[i]]$J48
+    JRip = JRip + result[[i]]$JRip
+    SMO = SMO + result[[i]]$SMO
+    IBK = IBK + result[[i]]$IBK
+    randomForest = randomForest + result[[i]]$randomForest
+}
+naiveBayes = naiveBayes / length(result)
+J48 = J48 / length(result)
+JRip = JRip / length(result)
+randomForest = randomForest / length(result)
+SMO = SMO / length(result)
+IBK = IBK / length(result)
+
+# Over Sampling
+startData = 1
+result = list()
+for(i in startData:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result[[i]] = list()
+    print("1 - Naive Bayes")
+    result[[i]]$naiveBayes = original(data, NB, overSampling)
+    print("2 - J48")
+    result[[i]]$J48 = original(data, J48, overSampling)
+    print("3 - JRip")
+    result[[i]]$JRip = original(data, JRip, overSampling)
+    print("4 - SMO")
+    result[[i]]$SMO = original(data, SMO, overSampling)
+    print("5 - IBK")
+    result[[i]]$IBK = original(data, IBk, overSampling)
+    print("6 - RandomForest")
+    result[[i]]$randomForest = original(data, randomForest, overSampling)
+}
+saveRDS(result, paste("results/over_results.rds"))
+
+naiveBayes = 0
+J48 = 0
+JRip = 0
+SMO = 0
+IBK = 0
+randomForest = 0
+
+for(i in 1:length(result)){
+    naiveBayes = naiveBayes + result[[i]]$naiveBayes
+    J48 = J48 + result[[i]]$J48
+    JRip = JRip + result[[i]]$JRip
+    SMO = SMO + result[[i]]$SMO
+    IBK = IBK + result[[i]]$IBK
+    randomForest = randomForest + result[[i]]$randomForest
+}
+naiveBayes = naiveBayes / length(result)
+J48 = J48 / length(result)
+JRip = JRip / length(result)
+randomForest = randomForest / length(result)
+SMO = SMO / length(result)
+IBK = IBK / length(result)

@@ -167,7 +167,7 @@ experiments = function(data, classifier, rules, splitMethod){
         bins = list()
         for(j in 1:length(binsIdx)){
             bins[[j]] = rbind(majorityClass[binsIdx[[j]], ], minorityClass)
-            bins[[j]] = bootstrap(bins[[j]])
+            #bins[[j]] = bootstrap(bins[[j]])
         }
 
         # Treinar o classificador base escolhido para cada bin
@@ -196,4 +196,52 @@ experiments = function(data, classifier, rules, splitMethod){
         }
     }
     return (auc)
+}
+
+original = function(data, classifier, sampling){
+    numOfFolds = 10
+    
+    # Padronizar variáveis explicativas entre 0 e 1
+    x = as.data.frame(apply(data[, -ncol(data)], 2, standardize))
+    x$target = data[, ncol(data)]
+    
+    # Quebrar dataset em 10 folds divididos em treino e teste
+    x = splitInFolds(x, numOfFolds)
+    auc = list()
+
+    for (i in 1:numOfFolds) {
+        trainSet = x[[i]]$train
+        testSet = x[[i]]$test
+      
+        # Treinar o classificador base escolhido para cada bin
+        c = classifier(target ~ ., trainSet)
+
+        p = predict(c, testSet)
+        auc = roc.curve(testSet$target, p, plotit = F)$auc
+    }
+    return (auc)
+}
+
+orig = function(data){
+    return (data)
+}
+
+overSampling = function(data){
+    class1 = table(data$target)[1]
+    class2 = table(data$target)[2]
+    
+    idxs = sample(which(data$target == 'positive'), class1 - class2, replace = TRUE)
+    data = rbind(data, data[idxs,])
+    return(data)
+}
+
+underSampling = function(data){
+    class1 = table(data$target)[1]
+    class2 = table(data$target)[2]
+
+    idxsClass1 = sample(which(data$target == 'negative'), class2, replace = TRUE)
+    idxsClass2 = sample(which(data$target == 'positive'), class2)
+    data = rbind(data[idxsClass1,], data[idxsClass2,])
+    data = data[sample(nrow(data)),]
+    return (data)
 }
