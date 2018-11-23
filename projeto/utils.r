@@ -27,7 +27,7 @@ bootstrap = function(x){
     return (x)
 }
 
-predictPool = function(pool, bins, test, d1, d2, rule){
+predictPool = function(pool, test, d1, d2, rule){
     # Predict no test dataset
     target = test[, 'target']
     test = test[, -ncol(test)]
@@ -191,9 +191,50 @@ experiments = function(data, classifier, rules, splitMethod){
         auc[[i]] = list()
         for(j in 1:length(rules)){
             #print(paste(" > Rules ", j, "of", length(rules)))
-            p = predictPool(pool, bins, testSet, d1, d2, rules[[j]])
+            p = predictPool(pool, testSet, d1, d2, rules[[j]])
             auc[[i]][[j]] = roc.curve(testSet$target, p, plotit = F)$auc
         }
+    }
+    return (auc)
+}
+
+experimentsProposed = function(data, classifier, splitMethod, selectionMethod){
+    numOfFolds = 10
+    
+    # Padronizar variáveis explicativas entre 0 e 1
+    x = as.data.frame(apply(data[, -ncol(data)], 2, standardize))
+    x$target = data[, ncol(data)]
+    
+    # Quebrar dataset em 10 folds divididos em treino e teste
+    x = splitInFolds(x, numOfFolds)
+    auc = c()
+
+    for (i in 1:numOfFolds) {
+        trainSet = x[[i]]$train
+        testSet = x[[i]]$test
+
+        # Separar classe minoritária da majoritária
+        majorityClass = trainSet[which(trainSet$target == 'negative'), ]
+        minorityClass = trainSet[which(trainSet$target == 'positive'), ]
+
+        # Calcular número de bins
+        numOfBins = floor(nrow(majorityClass) / nrow(minorityClass))
+
+        # Criar bins juntando a classe minoritária
+        binsIdx = splitMethod(majorityClass, numOfBins)
+    
+        bins = list()
+        for(j in 1:length(binsIdx)){
+            bins[[j]] = rbind(majorityClass[binsIdx[[j]], ], minorityClass)
+        }
+
+        # Treinar o classificador base escolhido para cada bin
+        pool = list()
+        for(j in 1:length(bins)){
+            pool[[j]] = classifier(target ~ ., bins[[j]])
+        }
+        p = selectionMethod(pool, trainSet, testSet)
+        auc[i] = roc.curve(testSet$target, p, plotit = F)$auc        
     }
     return (auc)
 }
@@ -217,9 +258,76 @@ original = function(data, classifier, sampling){
         c = classifier(target ~ ., trainSet)
 
         p = predict(c, testSet)
-        auc = c(auc, roc.curve(testSet$target, p, plotit = F)$auc)
+        auc[i] = roc.curve(testSet$target, p, plotit = F)$auc
     }
     return (auc)
+}
+
+ola = function(pool, train, test){
+    target = test$target
+    test = test[, -ncol(test)]
+
+    # Identificar os vizinhos mais próximos
+    neighboorsIdx = kNN(test, 5)$id
+
+    competencePred = list()
+    for(j in 1:length(pool)){
+        competencePred[[j]] = predict(pool[[j]], trainSet[, -ncol(trainSet)])
+    }
+    pred = list()
+    for(i in 1:nrow(test)){
+        competenceRegion = trainSet[neighboorsIdx[i, ], ]
+        accuracy = c()
+        for(j in 1:length(pool)){
+            p = competencePred[[j]][neighboorsIdx[i, ]]
+            accuracy[j] = length(which(p == competenceRegion$target)) / nrow(competenceRegion)
+        }
+        # Escolher aleatoriamente entre os melhores classificadores
+        selectedClassifier = pool[[sample(which(accuracy == max(accuracy)), 1)]]
+        pred[[i]] = predict(selectedClassifier, test[i, ])
+    }
+    pred = array(unlist(pred))
+    pred = factor(pred, levels = c('negative','positive'))
+    return(pred)
+}
+
+lca = function(pool, train, test){
+    target = test$target
+    test = test[, -ncol(test)]
+
+    # Identificar os vizinhos mais próximos
+    neighboorsIdx = kNN(test, 5)$id
+
+    competencePred = list()
+    testPred = list()
+    for(j in 1:length(pool)){
+        competencePred[[j]] = predict(pool[[j]], trainSet[, -ncol(trainSet)])
+        testPred[[j]] = predict(pool[[j]], test)
+    }
+    
+    pred = list()
+    for(i in 1:nrow(test)){        
+        competenceRegion = trainSet[neighboorsIdx[i, ], ]
+        accuracy = c()
+        for(j in 1:length(pool)){
+            testP = testPred[[j]][i]
+            p = competencePred[[j]][neighboorsIdx[i, ]]
+            sameClassIdx = which(p == testP)
+            if(length(sameClassIdx) == 0){
+                accuracy[j] = 0
+                next
+            }            
+            p = p[sameClassIdx]
+            newCompetenceRegion = competenceRegion[sameClassIdx, ]            
+            accuracy[j] = length(which(p == newCompetenceRegion$target)) / nrow(newCompetenceRegion)
+        }
+        # Escolher aleatoriamente entre os melhores classificadores
+        selectedClassifier = pool[[sample(which(accuracy == max(accuracy)), 1)]]
+        pred[[i]] = predict(selectedClassifier, test[i, ])
+    }
+    pred = array(unlist(pred))
+    pred = factor(pred, levels = c('negative','positive'))
+    return(pred)
 }
 
 orig = function(data){

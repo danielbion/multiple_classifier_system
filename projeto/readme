@@ -14,3 +14,8 @@ Que regra é melhor com clusterbal? Probabilidade e ranking
 Melhor regra com split bal, melhor com clusterbal, qual é melhor?
 Comparar o melhor com métodos da literatura
 
+Instancia de teste:
+Calcular região de competência
+OLA: Rankeia os classificadores na vizinhança pela taxa de acerto
+LCA: C1 disse que xquery era 1, 
+pega todos os vizinhos que C1 chamou de 1, calcula assertividade apenas neles, repete pra todos os classificadores

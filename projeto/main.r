@@ -218,3 +218,116 @@ mean(result$JRip)
 mean(result$randomForest)
 mean(result$SMO)
 mean(result$IBK)
+
+
+# Split + OLA
+result = list()
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result$naiveBayes[i] = mean(experimentsProposed(data, NB, splitBal, ola))
+    result$J48[i] = mean(experimentsProposed(data, J48, splitBal, ola))
+    result$JRip[i] = mean(experimentsProposed(data, JRip, splitBal, ola))
+    result$randomForest[i] = mean(experimentsProposed(data, randomForest, splitBal, ola))
+    result$SMO[i] = mean(experimentsProposed(data, SMO, splitBal, ola))
+    result$IBK[i] = mean(experimentsProposed(data, IBk, splitBal, ola))
+}
+saveRDS(result, paste("results/splitbal_ola_results.rds"))
+
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)
+
+# Split + LCA
+result = list()
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result$naiveBayes[i] = mean(experimentsProposed(data, NB, splitBal, lca))
+    result$J48[i] = mean(experimentsProposed(data, J48, splitBal, lca))
+    result$JRip[i] = mean(experimentsProposed(data, JRip, splitBal, lca))
+    result$randomForest[i] = mean(experimentsProposed(data, randomForest, splitBal, lca))
+    result$SMO[i] = mean(experimentsProposed(data, SMO, splitBal, lca))
+    result$IBK[i] = mean(experimentsProposed(data, IBk, splitBal, lca))
+}
+saveRDS(result, paste("results/splitbal_lca_results.rds"))
+
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)
+
+# Cluster + OLA
+result = list()
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result$naiveBayes[i] = mean(experimentsProposed(data, NB, clusterBal, ola))
+    result$J48[i] = mean(experimentsProposed(data, J48, clusterBal, ola))
+    result$JRip[i] = mean(experimentsProposed(data, JRip, clusterBal, ola))
+    result$randomForest[i] = mean(experimentsProposed(data, randomForest, clusterBal, ola))
+    result$SMO[i] = mean(experimentsProposed(data, SMO, clusterBal, ola))
+    result$IBK[i] = mean(experimentsProposed(data, IBk, clusterBal, ola))
+}
+saveRDS(result, paste("results/clusterBal_ola_results.rds"))
+
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)
+
+# Cluster + LCA
+result = list()
+result$naiveBayes = c()
+result$J48 = c()
+result$JRip = c()
+result$SMO = c()
+result$IBK = c()
+result$randomForest = c()
+for(i in 1:length(files)){
+    print(paste("Dataset", i))
+    data = read.table(paste('data/', files[i], sep = ''), sep=',', header=F)
+    
+    result$naiveBayes[i] = mean(experimentsProposed(data, NB, clusterBal, lca))
+    result$J48[i] = mean(experimentsProposed(data, J48, clusterBal, lca))
+    result$JRip[i] = mean(experimentsProposed(data, JRip, clusterBal, lca))
+    result$randomForest[i] = mean(experimentsProposed(data, randomForest, clusterBal, lca))
+    result$SMO[i] = mean(experimentsProposed(data, SMO, clusterBal, lca))
+    result$IBK[i] = mean(experimentsProposed(data, IBk, clusterBal, lca))
+}
+saveRDS(result, paste("results/clusterBal_lca_results.rds"))
+
+mean(result$naiveBayes)
+mean(result$J48)
+mean(result$JRip)
+mean(result$randomForest)
+mean(result$SMO)
+mean(result$IBK)
