@@ -61,33 +61,33 @@ for(i in startData:length(files)){
     result[[i]]$IBK = experiments(data, IBk, rules, clusterBal)
     print("6 - RandomForest")
     result[[i]]$randomForest = experiments(data, randomForest, rules, clusterBal)
-    saveRDS(result, paste("results/results", i, ".rds"))
 }
+saveRDS(result, paste("results/results_cluster.rds"))
 
 # Média de AUC de cada fold de cada dataset
-naiveBayes = rep(0, length(rules))
-J48 = rep(0, length(rules))
-JRip = rep(0, length(rules))
-SMO = rep(0, length(rules))
-IBK = rep(0, length(rules))
-randomForest = rep(0, length(rules))
+resultNaiveBayes = rep(0, length(rules))
+resultJ48 = rep(0, length(rules))
+resultJRip = rep(0, length(rules))
+resultSMO = rep(0, length(rules))
+resultIBK = rep(0, length(rules))
+resultRandomForest = rep(0, length(rules))
 
 for(i in 1:length(result)){
     for(j in 1:length(rules)){
-        naiveBayes[j] = naiveBayes[j] + mean(unlist(result[[i]]$naiveBayes[[j]]))
-        J48[j] = J48[j] + mean(unlist(result[[i]]$J48[[j]]))
-        JRip[j] = JRip[j] + mean(unlist(result[[i]]$JRip[[j]]))
-        SMO[j] = SMO[j] + mean(unlist(result[[i]]$SMO[[j]]))
-        IBK[j] = IBK[j] + mean(unlist(result[[i]]$IBK[[j]]))
-        randomForest[j] = randomForest[j] + mean(unlist(result[[i]]$randomForest[[j]]))
+        resultNaiveBayes[j] = resultNaiveBayes[j] + mean(unlist(result[[i]]$naiveBayes)[j])
+        resultJ48[j] = resultJ48[j] + mean(unlist(result[[i]]$J48)[j])
+        resultJRip[j] = resultJRip[j] + mean(unlist(result[[i]]$JRip)[j])
+        resultSMO[j] = resultSMO[j] + mean(unlist(result[[i]]$SMO)[j])
+        resultIBK[j] = resultIBK[j] + mean(unlist(result[[i]]$IBK)[j])
+        resultRandomForest[j] = resultRandomForest[j] + mean(unlist(result[[i]]$randomForest)[j])
     }
 }
-naiveBayes = naiveBayes / length(result)
-J48 = J48 / length(result)
-JRip = JRip / length(result)
-randomForest = randomForest / length(result)
-SMO = SMO / length(result)
-IBK = IBK / length(result)
+resultNaiveBayes = resultNaiveBayes / length(result)
+resultJ48 = resultJ48 / length(result)
+resultJRip = resultJRip / length(result)
+resultRandomForest = resultRandomForest / length(result)
+resultSMO = resultSMO / length(result)
+resultIBK = resultIBK / length(result)
 
 # Ranking
 calcRank = function(result){
@@ -98,12 +98,12 @@ calcRank = function(result){
     }
     return (rank)
 }
-naiveBayesRank = calcRank(naiveBayes)
-J48Rank = calcRank(J48)
-JRipRank = calcRank(JRip)
-randomForestRank = calcRank(randomForest)
-SMORank = calcRank(SMO)
-IBKRank = calcRank(IBK)
+naiveBayesRank = calcRank(resultNaiveBayes)
+J48Rank = calcRank(resultJ48)
+JRipRank = calcRank(resultJRip)
+randomForestRank = calcRank(resultRandomForest)
+SMORank = calcRank(resultSMO)
+IBKRank = calcRank(resultIBK)
 
 
 # External Methods
